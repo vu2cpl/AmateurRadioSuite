@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Radio Suite</string>
+    <key>CFBundleDisplayName</key>
+    <string>Amateur Radio Suite</string>
+    <key>CFBundleIdentifier</key>
+    <string>org.vu3esv.radiosuite</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleExecutable</key>
+    <string>RadioSuite</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <!-- Union of plugin needs: LP meters speak ws:// + http on the LAN,
+         BPF speaks plain http. Allow local arbitrary loads. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <!-- BPF discovers its controller over Bonjour. -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>Finds amateur-radio controllers on your local network so you can connect without typing an address.</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_bpf-so2r._tcp</string>
+    </array>
+</dict>
+</plist>
