@@ -8,6 +8,11 @@ Each existing app keeps all its internal code and continues to ship as a standal
 conforming to a shared `RadioPlugin` protocol and registers it. Type-safe, low-risk.
 Adding/removing a plugin edits a registry and recompiles the container.
 
+> **Opening this to third-party developers** (browse + install at runtime, crash
+> isolation, styling, error/notification handling) is planned separately in
+> [PLUGIN-PLATFORM.md](PLUGIN-PLATFORM.md). This document covers the first-party,
+> static base it builds on.
+
 ---
 
 ## 1. Apps in scope

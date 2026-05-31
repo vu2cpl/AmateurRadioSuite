@@ -39,6 +39,8 @@ open "dist/Amateur Radio Suite.app"
 A bundled `.app` is required for the window to activate normally (a raw `swift run`
 binary has no `Info.plist` / activation policy).
 
-See [PLAN.md](PLAN.md) for the full architecture and per-app integration plan.
+See [PLAN.md](PLAN.md) for the full architecture and per-app integration plan, and
+[PLUGIN-PLATFORM.md](PLUGIN-PLATFORM.md) for the plan to open the plugin contract to
+third-party developers (browse + install, crash isolation, styling, error/notification handling).
 
 Requires macOS 14+.
