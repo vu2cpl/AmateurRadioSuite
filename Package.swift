@@ -8,7 +8,10 @@ let package = Package(
         .executable(name: "RadioSuite", targets: ["RadioSuite"]),
     ],
     dependencies: [
-        .package(path: "../RadioPluginKit"),
+        // The contract is consumed as a published library (same Git URL the plugin
+        // repos use) so every chain resolves one identical RadioPluginKit — no
+        // path-vs-URL identity conflict. The plugin apps stay local-path for dev.
+        .package(url: "https://github.com/VU3ESV/RadioPluginKit.git", from: "1.0.0"),
         .package(path: "../LP-700-App"),
         .package(path: "../LP-100A-App"),
         .package(path: "../BandPassFilterControllerApp"),
