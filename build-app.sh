@@ -14,18 +14,23 @@ BINARY="RadioSuite"
 DIST="dist"
 BUNDLE="$DIST/$APP_NAME.app"
 
-echo "▶ Building release binary…"
-swift build -c release
+echo "▶ Building universal release binary (arm64 + x86_64)…"
+swift build -c release --arch arm64 --arch x86_64
 
-BIN_PATH="$(swift build -c release --show-bin-path)/$BINARY"
+BIN_PATH="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/$BINARY"
 
 echo "▶ Assembling app bundle…"
 rm -rf "$BUNDLE"
 mkdir -p "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
 cp "$BIN_PATH" "$BUNDLE/Contents/MacOS/$BINARY"
 cp Resources/Info.plist "$BUNDLE/Contents/Info.plist"
-if [ -f Resources/AppIcon.icns ]; then
-  cp Resources/AppIcon.icns "$BUNDLE/Contents/Resources/AppIcon.icns"
+
+# App icon (best-effort — generates a placeholder if none exists).
+if [ ! -f "$DIST/AppIcon.icns" ]; then
+  ./make-icon.sh || echo "  (icon generation failed — shipping without icon)"
+fi
+if [ -f "$DIST/AppIcon.icns" ]; then
+  cp "$DIST/AppIcon.icns" "$BUNDLE/Contents/Resources/AppIcon.icns"
 fi
 
 # Ad-hoc code signature so Gatekeeper lets it run locally.
