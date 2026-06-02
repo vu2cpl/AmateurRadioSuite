@@ -24,6 +24,10 @@ File**), not built in. Apps published as installable plugins:
 
 Planned: SPE amplifier (MacExpert), SO2R Box.
 
+To turn one of these apps into an installable out-of-process plugin, follow
+[docs/CONVERTING-A-PLUGIN.md](docs/CONVERTING-A-PLUGIN.md) — a step-by-step playbook with
+**LP-700** as the worked reference (its `.appex` + `.radioplugin` + catalog entry are live).
+
 ## Build & run
 
 The suite builds standalone — its only dependency is `RadioPluginKit` (resolved from

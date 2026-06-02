@@ -11,6 +11,17 @@
       "systemImage": "dot.radiowaves.left.and.right",
       "author": "Example",
       "summary": "Sample out-of-process plugin (discovery demo; running needs signing)."
+    },
+    {
+      "id": "org.vu3esv.radiosuite.LP700",
+      "name": "LP-700",
+      "latestVersion": "1.0.0",
+      "minHostVersion": "1.0",
+      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/lp700.radioplugin",
+      "sha256": "d4858dccd22f1cd12e66eb4fef25072f49570ed09da746c3acfe0b2502d69557",
+      "systemImage": "gauge.with.dots.needle.bottom.50percent",
+      "author": "VU3ESV",
+      "summary": "LP-700/LP-500 wattmeter, hosted out-of-process (built from LP-700-App)."
     }
   ]
 }
