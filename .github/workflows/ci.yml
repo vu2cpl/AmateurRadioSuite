@@ -15,12 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Branch of each sibling plugin repo to build against. Flip a ref to `main` once
-  # that plugin's RadioPlugin adapter has landed on its default branch.
-  LP700_REF: plugin-architecture
-  LP100A_REF: plugin-architecture
-  BPF_REF: main
-  ANTENNA_REF: main
+  # Sibling plugin repos are linked via local-path deps. While their RadioPlugin
+  # adapters migrate from `plugin-architecture` onto `main`, prefer that branch and
+  # fall back to `main` when it's gone — so the build self-heals as each plugin PR
+  # merges (and its feature branch is deleted). Override the preferred branch here.
+  PLUGIN_REF: plugin-architecture
 
 jobs:
   build-test:
@@ -43,15 +42,16 @@ jobs:
           auth=""
           [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
           clone() {
-            local name="$1" ref="$2"
+            local name="$1" url="https://${auth}github.com/VU3ESV/${1}.git" ref="$PLUGIN_REF"
+            # Prefer $PLUGIN_REF; fall back to the default branch (main) if it's gone.
+            git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref="main"
             echo "▶ $name @ $ref"
-            git clone --depth 1 --branch "$ref" \
-              "https://${auth}github.com/VU3ESV/${name}.git" "$name"
+            git clone --depth 1 --branch "$ref" "$url" "$name"
           }
-          clone LP-700-App                  "$LP700_REF"
-          clone LP-100A-App                 "$LP100A_REF"
-          clone BandPassFilterControllerApp "$BPF_REF"
-          clone AntennaSwitchController     "$ANTENNA_REF"
+          clone LP-700-App
+          clone LP-100A-App
+          clone BandPassFilterControllerApp
+          clone AntennaSwitchController
 
       - name: Swift version
         run: swift --version
