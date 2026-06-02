@@ -37,7 +37,7 @@ final class SuiteModel: ObservableObject {
         ])
         manager.isQuarantined = { supervisor.isQuarantined($0) }   // quarantined → drop from active
         catalog = CatalogService(defaultSources: [
-            URL(string: "https://raw.githubusercontent.com/VU3ESV/AmateurRadioApps/main/docs/catalog/catalog.json")!
+            URL(string: "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/catalog.json")!
         ])
         manager.reload()
         selection = Self.restoredSelection(saved: UserDefaults.standard.string(forKey: selectionKey),

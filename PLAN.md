@@ -48,10 +48,10 @@ Each repo gains:
    • a thin @main wrapper executable (keeps standalone .app)
 ```
 
-### Layout of the new workspace (`AmateurRadioApps/`)
+### Layout of the new workspace (`AmateurRadioSuite/`)
 
 ```
-AmateurRadioApps/
+AmateurRadioSuite/
   Package.swift                      # container exe + local-path deps on the 6 packages
   Sources/
     RadioSuite/                      # the container app

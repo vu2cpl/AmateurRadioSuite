@@ -28,7 +28,7 @@ Projects/
   LP-700-App/
   LP-100A-App/
   BandPassFilterControllerApp/
-  AmateurRadioApps/   ← this repo
+  AmateurRadioSuite/   ← this repo
 ```
 
 ```sh
