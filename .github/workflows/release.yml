@@ -1,0 +1,102 @@
+name: Release
+
+# Publishes a GitHub Release every time a PR is merged into main.
+# Version is an automatic patch bump of the latest v-prefixed tag (seeded at v0.1.0).
+# Artifacts: a zipped universal .app and a .dmg, built with build-app.sh.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  LP700_REF: plugin-architecture
+  LP100A_REF: plugin-architecture
+  BPF_REF: main
+  ANTENNA_REF: main
+
+jobs:
+  release:
+    # Only on an actual merge — closing a PR without merging must not release.
+    if: github.event.pull_request.merged == true
+    name: Build & publish release (macOS 14)
+    runs-on: macos-14
+    steps:
+      - name: Check out suite (merged main)
+        uses: actions/checkout@v4
+        with:
+          path: AmateurRadioSuite
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+
+      - name: Check out sibling plugin repos
+        env:
+          SIBLINGS_TOKEN: ${{ secrets.SIBLINGS_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          auth=""
+          [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
+          clone() {
+            local name="$1" ref="$2"
+            echo "▶ $name @ $ref"
+            git clone --depth 1 --branch "$ref" \
+              "https://${auth}github.com/VU3ESV/${name}.git" "$name"
+          }
+          clone LP-700-App                  "$LP700_REF"
+          clone LP-100A-App                 "$LP100A_REF"
+          clone BandPassFilterControllerApp "$BPF_REF"
+          clone AntennaSwitchController     "$ANTENNA_REF"
+
+      - name: Compute next version (patch bump)
+        id: ver
+        working-directory: AmateurRadioSuite
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1 || true)
+          if [ -z "$latest" ]; then
+            next="v0.1.0"
+          else
+            ver=${latest#v}
+            IFS=. read -r MA MI PA <<< "$ver"
+            next="v${MA}.${MI}.$((PA + 1))"
+          fi
+          echo "Latest: ${latest:-<none>} -> Next: $next"
+          echo "tag=$next"            >> "$GITHUB_OUTPUT"
+          echo "version=${next#v}"    >> "$GITHUB_OUTPUT"
+
+      - name: Build universal .app
+        working-directory: AmateurRadioSuite
+        run: ./build-app.sh
+
+      - name: Package .zip and .dmg
+        working-directory: AmateurRadioSuite
+        run: |
+          set -euo pipefail
+          V="${{ steps.ver.outputs.version }}"
+          APP="dist/Amateur Radio Suite.app"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "AmateurRadioSuite-$V.zip"
+          hdiutil create -volname "Amateur Radio Suite" -srcfolder "$APP" \
+            -ov -format UDZO "AmateurRadioSuite-$V.dmg"
+          ls -lh AmateurRadioSuite-"$V".zip AmateurRadioSuite-"$V".dmg
+
+      - name: Create GitHub Release
+        working-directory: AmateurRadioSuite
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "${{ steps.ver.outputs.tag }}" \
+            --title "Amateur Radio Suite ${{ steps.ver.outputs.tag }}" \
+            --generate-notes \
+            --target "${{ github.event.pull_request.base.ref }}" \
+            "AmateurRadioSuite-${{ steps.ver.outputs.version }}.zip" \
+            "AmateurRadioSuite-${{ steps.ver.outputs.version }}.dmg"

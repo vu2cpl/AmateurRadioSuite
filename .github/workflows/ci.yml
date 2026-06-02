@@ -1,0 +1,65 @@
+name: CI
+
+# Build + test the container on every PR and on pushes to main.
+# The suite links the four plugin apps via LOCAL PATH dependencies (../LP-700-App …),
+# so CI must check those sibling repos out next to this one before building.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Branch of each sibling plugin repo to build against. Flip a ref to `main` once
+  # that plugin's RadioPlugin adapter has landed on its default branch.
+  LP700_REF: plugin-architecture
+  LP100A_REF: plugin-architecture
+  BPF_REF: main
+  ANTENNA_REF: main
+
+jobs:
+  build-test:
+    name: Build & test (macOS 14)
+    runs-on: macos-14
+    steps:
+      - name: Check out suite
+        uses: actions/checkout@v4
+        with:
+          path: AmateurRadioSuite
+
+      - name: Check out sibling plugin repos
+        env:
+          # Optional PAT — only needed if the sibling repos are PRIVATE. For public
+          # repos, anonymous clone works and this can be left unset.
+          SIBLINGS_TOKEN: ${{ secrets.SIBLINGS_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          auth=""
+          [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
+          clone() {
+            local name="$1" ref="$2"
+            echo "▶ $name @ $ref"
+            git clone --depth 1 --branch "$ref" \
+              "https://${auth}github.com/VU3ESV/${name}.git" "$name"
+          }
+          clone LP-700-App                  "$LP700_REF"
+          clone LP-100A-App                 "$LP100A_REF"
+          clone BandPassFilterControllerApp "$BPF_REF"
+          clone AntennaSwitchController     "$ANTENNA_REF"
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Build
+        working-directory: AmateurRadioSuite
+        run: swift build -v
+
+      - name: Test
+        working-directory: AmateurRadioSuite
+        run: swift test
