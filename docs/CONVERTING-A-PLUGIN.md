@@ -241,13 +241,17 @@ Key details the script handles (and why):
 
 ## 6. Register in the suite catalog
 
-The catalog is hosted from the suite. Commit the built package and add an entry.
-Reference: [`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/catalog/catalog.json)
-(+ the committed `lp700.radioplugin` / `lp100a.radioplugin`).
+The catalog ([`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/catalog/catalog.json))
+points each plugin at the **`.radioplugin` published by that app's GitHub Release** (§7) —
+the suite repo does **not** store built plugin binaries (the plugin build belongs to the
+app). Add an entry that references the release asset:
 
-1. Copy `dist/<pkg>` → `AmateurRadioSuite/docs/catalog/<catalogPkg>`.
-2. `shasum -a 256 docs/catalog/<catalogPkg>` → use that digest.
-3. Append to `catalog.json`:
+1. After the app cuts a release (§7), grab the `.radioplugin` asset's download URL and digest:
+   ```sh
+   gh -R VU3ESV/<Repo> release download <tag> -p '*.radioplugin' -O /tmp/p.radioplugin
+   shasum -a 256 /tmp/p.radioplugin
+   ```
+2. Append to `catalog.json`, pinning the specific release tag + that digest:
 
 ```json
 {
@@ -255,16 +259,18 @@ Reference: [`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioS
   "name": "<PluginName>",
   "latestVersion": "1.0.0",
   "minHostVersion": "1.0",
-  "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/<catalogPkg>",
-  "sha256": "<digest of the committed file>",
+  "url": "https://github.com/VU3ESV/<Repo>/releases/download/<tag>/<asset-name>.radioplugin",
+  "sha256": "<digest of the release asset>",
   "systemImage": "<SystemImage>",
   "author": "VU3ESV"
 }
 ```
 
-The suite verifies this `sha256` on install, so the committed file and the digest must
-match exactly. **`ditto` zips aren't reproducible** — compute the digest from the
-*committed* file (or the just-built artifact you're committing), never a separate re-build.
+The suite verifies this `sha256` on install, so it must match the asset exactly. **`ditto`
+zips aren't reproducible**, so pin the **specific release** (not `latest/download`) + its
+digest, and bump `url`+`sha256` when the app releases a new plugin (the §7c auto-PR
+automates that). *(The bundled `demosdr` sample is the one exception — it has no app repo,
+so its package stays committed under `docs/catalog/`.)*
 
 ---
 
@@ -322,15 +328,15 @@ Now every release publishes the standalone `.dmg` **and** the `.radioplugin` —
 one pipeline, both forms. The `.radioplugin` is strictly **additional**; the app's existing
 `.dmg` build and release are untouched.
 
-### 7c. Keep the catalog in sync (choose one)
+### 7c. Keep the catalog in sync
 
-The catalog lives in the suite and pins each entry's `sha256`; the package sha changes every
-build (non-reproducible zips). Two ways to automate:
+**The adopted model (A): release-asset.** The plugin build belongs to the app, so the suite
+**does not store built `.radioplugin` binaries** — each catalog `url` points at the app's
+**release asset** (§6), pinned to a specific release tag + that asset's `sha256`. On a new
+plugin release, bump the entry's `url`+`sha256` in the suite catalog.
 
-| Model | Package hosted at | Catalog update | Needs |
-|---|---|---|---|
-| **A. Release-asset** | the app release (`…/releases/latest/download/<pkg>`) | catalog `url` points there; sha still pinned, so update it on release | (sha handling) |
-| **B. Auto-PR to suite** (recommended) | committed in the suite | the app's release job opens a PR to the suite updating that entry's `url`+`sha` | a cross-repo **PAT secret** |
+That bump is the only manual step; automate it by having the app's release job **open a PR
+to the suite** updating the entry (needs a cross-repo **PAT secret**) — e.g.:
 
 Sketch of **B** as a release step (after building `dist/<pkg>`):
 
