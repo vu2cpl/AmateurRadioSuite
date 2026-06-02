@@ -55,6 +55,28 @@ final class PluginCatalogTests: XCTestCase {
         XCTAssertNotNil(svc.lastError)
     }
 
+    /// Browsed (local) catalog entries show up, persist across launches, and can be removed.
+    @MainActor
+    func testLocalCatalogEntriesPersistAndMerge() {
+        let store = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let svc = CatalogService(store: store)   // no default sources — starts empty
+        XCTAssertTrue(svc.entries.isEmpty)
+
+        let e = CatalogEntry(id: "local.x", name: "Local X", latestVersion: "1.0",
+                             minHostVersion: "1.0", url: "file:///tmp/x.radioplugin", sha256: "s")
+        svc.addLocalEntry(e)
+        XCTAssertEqual(svc.entries.map(\.id), ["local.x"])
+        XCTAssertTrue(svc.isLocal("local.x"))
+
+        // A fresh service on the same store reloads the persisted local entry.
+        let svc2 = CatalogService(store: store)
+        XCTAssertEqual(svc2.entries.map(\.id), ["local.x"])
+
+        svc2.removeLocalEntry(id: "local.x")
+        XCTAssertTrue(svc2.entries.isEmpty)
+        XCTAssertFalse(svc2.isLocal("local.x"))
+    }
+
     /// Build a .radioplugin (zip), install it, reject a bad checksum, then uninstall.
     func testInstallVerifyUninstall() throws {
         let fm = FileManager.default

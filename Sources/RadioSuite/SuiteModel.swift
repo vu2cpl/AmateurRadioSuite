@@ -36,9 +36,9 @@ final class SuiteModel: ObservableObject {
             InstalledPluginSource(directory: InstalledPluginSource.defaultDirectory()),
         ])
         manager.isQuarantined = { supervisor.isQuarantined($0) }   // quarantined → drop from active
-        catalog = CatalogService(defaultSources: [
-            URL(string: "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/catalog.json")!
-        ])
+        // Start with an empty catalog — no baked-in sources. The user populates it by
+        // browsing `.radioplugin` files (addCatalogPlugin(fromFile:)) or adding a source URL.
+        catalog = CatalogService()
         manager.reload()
         selection = Self.restoredSelection(saved: UserDefaults.standard.string(forKey: selectionKey),
                                            active: manager.activeEntries.map(\.id))
@@ -74,6 +74,42 @@ final class SuiteModel: ObservableObject {
     func installFromFile(_ fileURL: URL) throws {
         try PackageInstaller.install(localPackage: fileURL, expectedSHA256: nil, into: pluginsDir)
         manager.reload(); reconcile()
+    }
+
+    /// Stable copy of the packages the user browsed into the catalog (so an entry's `url`
+    /// stays valid even if the original file moves).
+    private var catalogPackagesDir: URL {
+        pluginsDir.deletingLastPathComponent().appendingPathComponent("CatalogPackages", isDirectory: true)
+    }
+
+    /// Browse a `.radioplugin` from disk and add it to the (local) catalog: read its manifest,
+    /// copy the package to a stable location, compute its checksum, and register a catalog
+    /// entry. The plugin then appears in Browse, where it can be installed like any other.
+    @discardableResult
+    func addCatalogPlugin(fromFile fileURL: URL) throws -> CatalogEntry {
+        let manifest = try PackageInstaller.readManifest(fromPackage: fileURL)
+        let dir = catalogPackagesDir
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let dest = dir.appendingPathComponent("\(manifest.id).radioplugin")
+        if FileManager.default.fileExists(atPath: dest.path) {
+            try FileManager.default.removeItem(at: dest)
+        }
+        try FileManager.default.copyItem(at: fileURL, to: dest)
+        let entry = CatalogEntry(
+            id: manifest.id, name: manifest.name, latestVersion: manifest.version,
+            minHostVersion: manifest.minHostVersion, url: dest.absoluteString,
+            sha256: try PackageInstaller.sha256Hex(of: dest),
+            systemImage: manifest.systemImage, author: manifest.author,
+            summary: "Added from file")
+        catalog.addLocalEntry(entry)
+        return entry
+    }
+
+    /// Remove a browsed catalog entry (and its stored package copy).
+    func removeCatalogPlugin(id: String) {
+        catalog.removeLocalEntry(id: id)
+        let pkg = catalogPackagesDir.appendingPathComponent("\(id).radioplugin")
+        try? FileManager.default.removeItem(at: pkg)
     }
 
     func uninstall(id: String) throws {

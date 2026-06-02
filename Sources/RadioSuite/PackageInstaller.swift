@@ -32,6 +32,22 @@ enum PackageInstaller {
         return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 
+    /// Read a `.radioplugin`'s manifest WITHOUT installing it (unzip to a temp dir, locate and
+    /// decode `plugin.json`). Used by the "add plugin from file" catalog flow.
+    static func readManifest(fromPackage packageURL: URL) throws -> RadioPluginManifest {
+        let staging = FileManager.default.temporaryDirectory
+            .appendingPathComponent("radioplugin-read-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: staging) }
+        try unzip(packageURL, to: staging)
+        let manifestURL = try payloadRoot(in: staging).appendingPathComponent("plugin.json")
+        guard let data = try? Data(contentsOf: manifestURL),
+              let manifest = try? JSONDecoder().decode(RadioPluginManifest.self, from: data),
+              !manifest.id.isEmpty
+        else { throw InstallError.missingManifest }
+        return manifest
+    }
+
     /// Install a local `.radioplugin` file into `pluginsDir`. Returns the installed manifest.
     @discardableResult
     static func install(localPackage packageURL: URL,
