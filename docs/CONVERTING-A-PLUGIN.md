@@ -1,56 +1,119 @@
-# Converting an app into an installable out-of-process plugin
+# The plugin bible — make any app a Radio Suite plugin (both tiers + pipeline)
 
-A step-by-step **playbook** for turning a standalone radio app into a sandboxed,
-crash-isolated **ExtensionKit `.appex`** that the [Amateur Radio Suite](https://github.com/VU3ESV/AmateurRadioSuite)
-can **browse, install, and host** at runtime — without the suite compiling the app in.
+The **canonical, end-to-end reference** for turning a macOS radio app into an
+[Amateur Radio Suite](https://github.com/VU3ESV/AmateurRadioSuite) plugin. Follow it for a
+**brand-new app** or to convert an existing one. It covers all three layers:
 
-It is written so a **fresh Claude session (or any developer)** can apply it to one app at
-a time. **LP-700** is the worked reference: every step links to the real files in
-[LP-700-App](https://github.com/VU3ESV/LP-700-App). To convert another app
-(LP-100A, Band Pass Filter, Antenna Switch, …), repeat the steps and substitute the
-values in the table below.
+1. the **in-process plugin** (the `RadioPlugin` adapter) — for first-party/embedded use;
+2. the **out-of-process plugin** — a sandboxed, crash-isolated ExtensionKit **`.appex`**
+   packaged as a **`.radioplugin`** the suite browses + installs; and
+3. the **build & release pipeline** — so the app's own CI/release builds and ships both
+   forms automatically, and registers the plugin in the suite catalog.
 
-> Background: [ARCHITECTURE.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/ARCHITECTURE.md)
-> (esp. §8) and [docs/EXTENSIONKIT.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/EXTENSIONKIT.md).
+It is written so a **fresh Claude session (or any developer)** can apply it to one app at a
+time. **LP-700** ([LP-700-App](https://github.com/VU3ESV/LP-700-App)) and **LP-100A**
+([LP-100A-App](https://github.com/VU3ESV/LP-100A-App)) are the worked references — every
+step links the real files. To do another app, repeat the steps and substitute the values
+in §0.
+
+> Deeper background: [ARCHITECTURE.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/ARCHITECTURE.md)
+> (the contract, the two tiers, the hosting seam) and
+> [docs/EXTENSIONKIT.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/EXTENSIONKIT.md).
 
 ---
 
-## 0. Per-app variables (substitute these)
+## 0. Per-app variables (substitute these everywhere)
 
-| Variable | LP-700 value | Where it's used |
+| Variable | LP-700 value | Used in |
 |---|---|---|
-| `<RepoModule>` | `LP700App` | the SwiftPM library product that holds the app's views |
+| `<Repo>` | `LP-700-App` | the GitHub repo |
+| `<RepoModule>` | `LP700App` | the SwiftPM **library** product that holds the app's views |
 | `<RootView>` | `ContentView(vm: MeterViewModel())` | the SwiftUI root the plugin shows |
+| `<Adapter>` | `LP700Plugin` | the in-process `RadioPlugin` type (§1) |
+| `<Factory>` | `LP700Extension` | the public out-of-process root-view factory (§2) |
 | `<PluginName>` | `LP-700` | display name (manifest + Info.plist) |
-| `<BundleID>` | `org.vu3esv.radiosuite.LP700` | the `.appex` bundle id **and** `plugin.json` `id` (they MUST match) |
+| `<pluginID>` (in-process) | `lp700` | short id for the in-process manifest |
+| `<BundleID>` (out-of-process) | `org.vu3esv.radiosuite.LP700` | the `.appex` bundle id **and** `plugin.json` `id` — they MUST match |
 | `<SystemImage>` | `gauge.with.dots.needle.bottom.50percent` | SF Symbol for the sidebar/tab |
-| `<capabilities>` | `["network.client","notifications"]` | what the plugin touches |
+| `<capabilities>` | `[.networkClient, .notifications]` | what the plugin touches |
 | `<ExtTarget>` | `LP700Extension` | the Xcode `.appex` target/scheme name |
-| `<pkg>` | `LP700.radioplugin` / `lp700.radioplugin` | the installable package filename |
+| `<pkg>` | `LP700.radioplugin` | the installable package filename (`dist/`) |
+| `<catalogPkg>` | `lp700.radioplugin` | the package committed in the suite catalog |
 
-**The one rule that matters:** the `.appex` **bundle identifier** must equal the
-`plugin.json` **`id`**. That is the key the suite correlates a discovered extension to its
-manifest by (`ExtensionHostProvider` in the suite). Use a stable reverse-DNS id and never
-change it.
+**The one rule that matters:** for the out-of-process tier, the `.appex` **bundle
+identifier** must equal the `plugin.json` **`id`**. That is the key the suite correlates a
+discovered extension to its manifest by. Use a stable reverse-DNS id and never change it.
 
 ---
 
-## 1. Expose a public root-view factory (keep everything else `internal`)
+## 1. The in-process plugin (the `RadioPlugin` adapter)
 
-The `.appex` is a **separate module**, so it can't see your app's `internal` views. Add
-one small `public` factory to your library — mirroring how the in-process adapter works,
-nothing else becomes public.
+Every plugin — in- or out-of-process — is fundamentally a type conforming to `RadioPlugin`
+from [RadioPluginKit](https://github.com/VU3ESV/RadioPluginKit). Add **one** `public`
+adapter to your library; keep every other type `internal`.
 
-Reference: [`Sources/LP700App/LP700Extension.swift`](https://github.com/VU3ESV/LP-700-App/blob/main/Sources/LP700App/LP700Extension.swift)
+Reference: [`LP700Plugin.swift`](https://github.com/VU3ESV/LP-700-App/blob/main/Sources/LP700App/LP700Plugin.swift).
+Full contract + rules: [ARCHITECTURE.md §2, §6](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/ARCHITECTURE.md).
+
+1. **Depend on the contract** in `Package.swift`:
+   ```swift
+   .package(url: "https://github.com/VU3ESV/RadioPluginKit.git", from: "1.2.0"),
+   // ...and add `.product(name: "RadioPluginKit", package: "RadioPluginKit")` to the library target.
+   ```
+2. **Conform one `public` type:**
+   ```swift
+   import SwiftUI
+   import RadioPluginKit
+
+   @MainActor
+   public final class <Adapter>: RadioPlugin {          // e.g. LP700Plugin
+       public static let manifest: RadioPluginManifest? = RadioPluginManifest(
+           id: "<pluginID>", name: "<PluginName>", version: "1.0",
+           isolation: .inProcess,                        // first-party / embedded
+           capabilities: <capabilities>,
+           systemImage: "<SystemImage>", author: "VU3ESV")
+       public static var metadata: PluginMetadata { manifest!.metadata }
+
+       private let host: PluginHost
+       private let vm: MeterViewModel
+       private var started = false
+
+       public init(host: PluginHost) {
+           self.host = host
+           AppDefaults.store = host.defaults(for: Self.metadata.id)   // per-plugin storage, BEFORE any view
+           self.vm = MeterViewModel()
+       }
+       public func makeRootView() -> AnyView { AnyView(<RootView>) }
+       public func activate() { /* idempotent connect; see reference */ }
+       public var menuCommands: [PluginCommand] { /* optional */ [] }
+   }
+   ```
+
+**Rules** (full list in ARCHITECTURE §6): one `public` type; **never** touch
+`UserDefaults.standard` (use `host.defaults(for:)`); never draw window chrome; make
+`activate()` idempotent; report problems via `host.report` / `host.notify`.
+
+This adapter is what `swift build` compiles and `swift test` exercises — so **CI already
+covers it** (see §7). It's used directly when a build embeds the plugin in-process; the
+out-of-process tier (§2+) reuses the same views through a thin factory.
+
+---
+
+## 2. Expose a public root-view factory (for the out-of-process module)
+
+The `.appex` is a **separate module**, so it can't see your app's `internal` views. Add one
+small `public` factory — nothing else becomes public.
+
+Reference: [`LP700Extension.swift`](https://github.com/VU3ESV/LP-700-App/blob/main/Sources/LP700App/LP700Extension.swift)
 
 ```swift
 import SwiftUI
 
-public enum <PluginName>Extension {           // e.g. LP700Extension
+public enum <Factory> {                        // e.g. LP700Extension
     @MainActor
     public static func rootView(defaults: UserDefaults? = nil) -> AnyView {
         if let defaults { AppDefaults.store = defaults }   // your app's @AppStorage backing
-        return AnyView(<RootView>)                          // e.g. ContentView(vm: MeterViewModel())
+        return AnyView(<RootView>)
     }
 }
 ```
@@ -59,13 +122,13 @@ Verify the plain build is unaffected: `swift build && swift test`.
 
 ---
 
-## 2. Add the ExtensionKit `.appex` target (Xcode, via XcodeGen)
+## 3. Add the ExtensionKit `.appex` target (Xcode, via XcodeGen)
 
 SwiftPM **cannot** build `.appex` bundles, so add a tiny Xcode project. Create three files
 under `Xcode/`:
 
 **`Xcode/Extension/<ExtTarget>.swift`** — the extension entry point.
-Reference: [`Xcode/Extension/LP700PluginExtension.swift`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/LP700PluginExtension.swift)
+Reference: [`LP700PluginExtension.swift`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/LP700PluginExtension.swift)
 
 ```swift
 import SwiftUI
@@ -77,16 +140,14 @@ import <RepoModule>                            // e.g. LP700App
 struct <ExtTarget>: AppExtension {
     var configuration: AppExtensionSceneConfiguration {
         AppExtensionSceneConfiguration(
-            PrimitiveAppExtensionScene(id: "primary") {
-                <PluginName>Extension.rootView()
-            }
+            PrimitiveAppExtensionScene(id: "primary") { <Factory>.rootView() }
         )
     }
 }
 ```
 
 **`Xcode/Extension/Info.plist`** — must declare the suite's extension point.
-Reference: [`Xcode/Extension/Info.plist`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/Info.plist)
+Reference: [`Info.plist`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/Info.plist)
 
 ```xml
 <key>EXAppExtensionAttributes</key>
@@ -97,7 +158,7 @@ Reference: [`Xcode/Extension/Info.plist`](https://github.com/VU3ESV/LP-700-App/b
 ```
 
 **`Xcode/project.yml`** — XcodeGen spec. Links **only** RadioPluginKit + your own library.
-Reference: [`Xcode/project.yml`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/project.yml)
+Reference: [`project.yml`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/project.yml)
 
 ```yaml
 name: <PluginName>Plugin
@@ -118,7 +179,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: <BundleID>   # MUST equal plugin.json id
         CODE_SIGN_STYLE: Manual
-        CODE_SIGN_IDENTITY: "-"                  # ad-hoc for dev
+        CODE_SIGN_IDENTITY: "-"                  # ad-hoc for dev/CI
     dependencies:
       - { package: RadioPluginKit, product: RadioPluginKit }
       - { package: RadioPluginKit, product: RadioPluginUI }
@@ -126,15 +187,15 @@ targets:
 ```
 
 > Keep the generated `.xcodeproj` **gitignored** (your repo's `.gitignore` likely already
-> ignores `*.xcodeproj/`); regenerate it with `xcodegen generate`. Commit only `project.yml`
+> ignores `*.xcodeproj/`); regenerate with `xcodegen generate`. Commit only `project.yml`
 > + `Extension/`.
 
 ---
 
-## 3. Write `plugin.json`
+## 4. Write `plugin.json`
 
 `Xcode/Extension/plugin.json` — the manifest the suite reads (without loading code).
-Reference: [`Xcode/Extension/plugin.json`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/plugin.json)
+Reference: [`plugin.json`](https://github.com/VU3ESV/LP-700-App/blob/main/Xcode/Extension/plugin.json)
 
 ```json
 {
@@ -144,20 +205,20 @@ Reference: [`Xcode/Extension/plugin.json`](https://github.com/VU3ESV/LP-700-App/
   "sdkVersion": "1.2",
   "minHostVersion": "1.0",
   "isolation": "out-of-process",
-  "capabilities": <capabilities>,
+  "capabilities": ["network.client", "notifications"],
   "systemImage": "<SystemImage>",
   "author": "VU3ESV",
-  "homepage": "https://github.com/VU3ESV/<your-repo>"
+  "homepage": "https://github.com/VU3ESV/<Repo>"
 }
 ```
 
 ---
 
-## 4. Package the `.radioplugin`
+## 5. Package the `.radioplugin`
 
 Add `scripts/make-radioplugin.sh` (generates the project, builds the `.appex`, zips the
 package with `plugin.json` at the **archive root**).
-Reference: [`scripts/make-radioplugin.sh`](https://github.com/VU3ESV/LP-700-App/blob/main/scripts/make-radioplugin.sh)
+Reference: [`make-radioplugin.sh`](https://github.com/VU3ESV/LP-700-App/blob/main/scripts/make-radioplugin.sh)
 
 ```sh
 ./scripts/make-radioplugin.sh        # -> dist/<pkg> + prints its sha256
@@ -166,20 +227,23 @@ Reference: [`scripts/make-radioplugin.sh`](https://github.com/VU3ESV/LP-700-App/
 Key details the script handles (and why):
 - **`GIT_CONFIG_COUNT=1 … safe.bareRepository=all`** — lets `xcodebuild`'s SwiftPM resolve
   past a common global `safe.bareRepository=explicit` git setting, without editing config.
-- **`ditto -c -k --norsrc --noextattr`** with `plugin.json` at the root — produces a clean
-  zip with **no `__MACOSX/` AppleDouble dir** (a second top-level dir would break the
-  suite's payload-root detection in `PackageInstaller`).
+  (Harmless on CI runners, which don't set it.)
+- **`ditto -c -k --norsrc --noextattr`** with `plugin.json` at the root — a clean zip with
+  **no `__MACOSX/` AppleDouble dir** (a second top-level dir would break the suite's
+  payload-root detection in `PackageInstaller`).
+- **Pure-ASCII script** — a multibyte char right after a `$VAR` is absorbed into the name
+  under a C locale (`PKG…: unbound variable`). Keep echoes ASCII.
 
 ---
 
-## 5. Add the catalog entry (in the suite repo)
+## 6. Register in the suite catalog
 
 The catalog is hosted from the suite. Commit the built package and add an entry.
 Reference: [`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/catalog/catalog.json)
-+ the committed [`lp700.radioplugin`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/catalog/).
+(+ the committed `lp700.radioplugin` / `lp100a.radioplugin`).
 
-1. Copy `dist/<pkg>` → `AmateurRadioSuite/docs/catalog/<pkg>`.
-2. `shasum -a 256 docs/catalog/<pkg>` → use that digest.
+1. Copy `dist/<pkg>` → `AmateurRadioSuite/docs/catalog/<catalogPkg>`.
+2. `shasum -a 256 docs/catalog/<catalogPkg>` → use that digest.
 3. Append to `catalog.json`:
 
 ```json
@@ -188,7 +252,7 @@ Reference: [`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioS
   "name": "<PluginName>",
   "latestVersion": "1.0.0",
   "minHostVersion": "1.0",
-  "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/<pkg>",
+  "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/<catalogPkg>",
   "sha256": "<digest of the committed file>",
   "systemImage": "<SystemImage>",
   "author": "VU3ESV"
@@ -196,41 +260,133 @@ Reference: [`docs/catalog/catalog.json`](https://github.com/VU3ESV/AmateurRadioS
 ```
 
 The suite verifies this `sha256` on install, so the committed file and the digest must
-match exactly. (`ditto` zips aren't reproducible — compute the digest from the *committed*
-file, not a re-build.)
+match exactly. **`ditto` zips aren't reproducible** — compute the digest from the
+*committed* file (or the just-built artifact you're committing), never a separate re-build.
 
 ---
 
-## 6. What works now vs. the signing gate (be honest)
+## 7. The build & release pipeline (do this once per app)
 
-After these steps, for your plugin the suite can: **browse** it (catalog), **install**
-it (checksum-verified), **discover** it, and — in the Xcode host build — **host** it via
+Goal: the app's **own** CI/release builds and ships **both** the in-process plugin (already
+covered by `swift build`/`swift test`) **and** the out-of-process `.radioplugin`. Reference
+workflows: each app's [`ci.yml`](https://github.com/VU3ESV/LP-700-App/blob/main/.github/workflows/ci.yml)
+/ [`release.yml`](https://github.com/VU3ESV/LP-700-App/blob/main/.github/workflows/release.yml).
+
+### 7a. CI — verify the `.appex` on every PR (macOS 14)
+
+The in-process adapter is already built/tested by the existing `swift build` + `swift test`
+steps. Add **one step** to also build the out-of-process package so a broken `.appex` is
+caught immediately:
+
+```yaml
+      - name: Build plugin package (.appex / .radioplugin)
+        run: |
+          brew install xcodegen        # not preinstalled on the runner
+          ./scripts/make-radioplugin.sh
+```
+
+### 7b. Release — attach the `.radioplugin` to the GitHub Release
+
+Your apps release on a `v*` tag and already attach the `.dmg`. Build the package and add it
+to the uploaded files. With `softprops/action-gh-release` (what the apps use), add a build
+step and one line to `files:`:
+
+```yaml
+      - name: Build plugin package
+        run: |
+          brew install xcodegen
+          ./scripts/make-radioplugin.sh        # -> dist/<pkg>
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          # ...existing config...
+          files: |
+            dist/<Repo>-*.dmg
+            dist/<Repo>-*.dmg.sha256
+            dist/<pkg>                          # <-- the .radioplugin
+```
+
+Now every tagged release publishes the standalone `.dmg` **and** the `<pkg>` plugin — one
+repo, one pipeline, both forms.
+
+### 7c. Keep the catalog in sync (choose one)
+
+The catalog lives in the suite and pins each entry's `sha256`; the package sha changes every
+build (non-reproducible zips). Two ways to automate:
+
+| Model | Package hosted at | Catalog update | Needs |
+|---|---|---|---|
+| **A. Release-asset** | the app release (`…/releases/latest/download/<pkg>`) | catalog `url` points there; sha still pinned, so update it on release | (sha handling) |
+| **B. Auto-PR to suite** (recommended) | committed in the suite | the app's release job opens a PR to the suite updating that entry's `url`+`sha` | a cross-repo **PAT secret** |
+
+Sketch of **B** as a release step (after building `dist/<pkg>`):
+
+```yaml
+      - name: Publish to suite catalog
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.SUITE_CATALOG_PAT }}   # repo-scoped PAT for AmateurRadioSuite
+        run: |
+          SHA=$(shasum -a 256 dist/<pkg> | awk '{print $1}')
+          gh repo clone VU3ESV/AmateurRadioSuite suite -- --depth 1
+          cp dist/<pkg> suite/docs/catalog/<catalogPkg>
+          # update url+sha+version for "<BundleID>" in suite/docs/catalog/catalog.json (jq),
+          # then: git -C suite checkout -b update-<pluginID>-$SHA && commit && push && gh pr create
+```
+
+Until a PAT exists, do §6 by hand after each release (copy `dist/<pkg>` → suite, update the
+entry). **Recommended rollout:** add 7a + 7b now (no secrets), add 7c-B once the PAT is set.
+
+### 7d. The signing gate (unchanged)
+
+CI/release produces an **ad-hoc-signed** `.radioplugin` — valid for building, discovery, and
+the catalog listing. A *runnable* third-party extension needs **Developer-ID signing +
+notarization**, which in a pipeline means adding signing **secrets** (cert + notary creds)
+and a signing step. That's an Apple-account/credentials step, not workflow plumbing. See §8.
+
+---
+
+## 8. What works vs. the signing gate (be honest)
+
+After these steps the suite can, for your plugin: **browse** it (catalog), **install** it
+(checksum-verified), **discover** it, and — in the Xcode host build — **host** it via
 `EXHostViewController`. The full code path is in place and compiles.
 
-**The remaining gate to a *running* third-party plugin is Apple code-signing:**
-- macOS only surfaces an ExtensionKit extension (`AppExtensionIdentity.matching`) once its
-  **containing app/extension is registered with the system** — i.e. signed (Developer-ID)
-  and approved. A `.appex` merely unzipped into Application Support is **not** auto-registered.
-- So shipping a runnable third-party plugin needs a **Developer-ID signing identity** +
-  notarization + the runtime extension-approval flow. That is an account/credentials step,
-  not code. Ad-hoc signing (what `make-radioplugin.sh` uses) is fine for building and for
-  the discovery/catalog flow, but not for loading an untrusted extension.
-
-Until then, an installed out-of-process plugin lists as **discovered** and renders the
-"runs out-of-process" placeholder in the plain build; the Xcode host build hosts it once
-the extension is registered/approved.
+**The remaining gate to a *running* third-party plugin is Apple code-signing:** macOS only
+surfaces an ExtensionKit extension (`AppExtensionIdentity.matching`) once its container is
+**registered with the system** — i.e. Developer-ID signed + notarized + approved. A `.appex`
+merely unzipped into Application Support is **not** auto-registered. Ad-hoc signing (what the
+script/CI uses) is fine for building and the discovery/catalog flow, not for loading an
+untrusted extension. Until then an installed out-of-process plugin lists as **discovered**
+and shows the "runs out-of-process" placeholder in the plain build; the Xcode host build
+hosts it once the extension is registered/approved.
 
 ---
 
 ## Checklist (per app)
 
-- [ ] Public `rootView()` factory added; `swift build && swift test` still green.
+**Plugin code**
+- [ ] `Package.swift` depends on `RadioPluginKit`; library target links it.
+- [ ] One `public` `<Adapter>: RadioPlugin` (manifest, `makeRootView`, idempotent `activate`); everything else `internal`.
+- [ ] Public `<Factory>.rootView()` for the out-of-process module.
+- [ ] `swift build && swift test` green.
+
+**Out-of-process packaging**
 - [ ] `Xcode/Extension/<ExtTarget>.swift`, `Info.plist` (extension point), `project.yml`.
 - [ ] `plugin.json` with `id` **==** the `.appex` `PRODUCT_BUNDLE_IDENTIFIER`.
 - [ ] `scripts/make-radioplugin.sh` builds the `.appex` and produces `dist/<pkg>`.
 - [ ] `.xcodeproj` stays gitignored; commit `project.yml` + `Extension/` + the script + the factory.
-- [ ] Suite: committed `docs/catalog/<pkg>` + a `catalog.json` entry whose `sha256` matches.
-- [ ] PRs opened (this app repo + the suite catalog).
 
-*Worked reference: [LP-700-App PR](https://github.com/VU3ESV/LP-700-App/pulls) +
+**Pipeline**
+- [ ] CI builds the `.radioplugin` (`brew install xcodegen` + the script).
+- [ ] Release attaches `dist/<pkg>` to the GitHub Release.
+- [ ] Catalog kept in sync (auto-PR with a PAT, or §6 by hand).
+
+**Suite catalog**
+- [ ] Committed `docs/catalog/<catalogPkg>` + a `catalog.json` entry whose `sha256` matches.
+
+*Worked references: [LP-700-App](https://github.com/VU3ESV/LP-700-App) ·
+[LP-100A-App](https://github.com/VU3ESV/LP-100A-App) ·
 [AmateurRadioSuite catalog](https://github.com/VU3ESV/AmateurRadioSuite/tree/main/docs/catalog).*
