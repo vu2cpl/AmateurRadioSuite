@@ -17,10 +17,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  LP700_REF: plugin-architecture
-  LP100A_REF: plugin-architecture
-  BPF_REF: main
-  ANTENNA_REF: main
+  # See ci.yml: prefer the plugin-architecture branch, fall back to main when it's
+  # gone, so releases keep building as plugin PRs merge onto their default branch.
+  PLUGIN_REF: plugin-architecture
 
 jobs:
   release:
@@ -45,15 +44,16 @@ jobs:
           auth=""
           [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
           clone() {
-            local name="$1" ref="$2"
+            local name="$1" url="https://${auth}github.com/VU3ESV/${1}.git" ref="$PLUGIN_REF"
+            # Prefer $PLUGIN_REF; fall back to the default branch (main) if it's gone.
+            git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref="main"
             echo "▶ $name @ $ref"
-            git clone --depth 1 --branch "$ref" \
-              "https://${auth}github.com/VU3ESV/${name}.git" "$name"
+            git clone --depth 1 --branch "$ref" "$url" "$name"
           }
-          clone LP-700-App                  "$LP700_REF"
-          clone LP-100A-App                 "$LP100A_REF"
-          clone BandPassFilterControllerApp "$BPF_REF"
-          clone AntennaSwitchController     "$ANTENNA_REF"
+          clone LP-700-App
+          clone LP-100A-App
+          clone BandPassFilterControllerApp
+          clone AntennaSwitchController
 
       - name: Compute next version (patch bump)
         id: ver
