@@ -15,6 +15,7 @@ let package = Package(
         .package(path: "../LP-700-App"),
         .package(path: "../LP-100A-App"),
         .package(path: "../BandPassFilterControllerApp"),
+        .package(name: "AntennaSwitchControllerApp", path: "../AntennaSwitchController/App"),
     ],
     targets: [
         .executableTarget(
@@ -25,6 +26,7 @@ let package = Package(
                 .product(name: "LP700App", package: "LP-700-App"),
                 .product(name: "LP100AApp", package: "LP-100A-App"),
                 .product(name: "BandPassFilterControllerKit", package: "BandPassFilterControllerApp"),
+                .product(name: "AntennaSwitchControllerKit", package: "AntennaSwitchControllerApp"),
             ],
             path: "Sources/RadioSuite"
         ),

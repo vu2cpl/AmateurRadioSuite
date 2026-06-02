@@ -3,6 +3,7 @@ import RadioPluginKit
 import LP700App
 import LP100AApp
 import BandPassFilterController
+import AntennaSwitchController
 
 /// Compiled-in (trusted, in-process) plugins. The single edit point for adding a
 /// first-party plugin: add its package dependency in Package.swift, then add a row
@@ -15,9 +16,10 @@ struct BuiltInPluginSource: PluginSource {
 
     func discover() -> [PluginEntry] {
         let rows: [(RadioPluginManifest?, @MainActor () -> any RadioPlugin)] = [
-            (LP700Plugin.manifest,  { LP700Plugin(host: host) }),
-            (LP100APlugin.manifest, { LP100APlugin(host: host) }),
-            (BPFPlugin.manifest,    { BPFPlugin(host: host) }),
+            (LP700Plugin.manifest,         { LP700Plugin(host: host) }),
+            (LP100APlugin.manifest,        { LP100APlugin(host: host) }),
+            (BPFPlugin.manifest,           { BPFPlugin(host: host) }),
+            (AntennaSwitchPlugin.manifest, { AntennaSwitchPlugin(host: host) }),
         ]
         return rows.compactMap { manifest, make in
             guard let manifest else { return nil }
