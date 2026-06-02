@@ -44,6 +44,17 @@
       "systemImage": "line.3.horizontal.decrease.circle",
       "author": "VU3ESV",
       "summary": "Band Pass Filter controller (mDNS-discovered), hosted out-of-process (built from BandPassFilterControllerApp)."
+    },
+    {
+      "id": "org.vu3esv.radiosuite.AntennaSwitch",
+      "name": "Antenna Switch",
+      "latestVersion": "1.0.0",
+      "minHostVersion": "1.0",
+      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/antennaswitch.radioplugin",
+      "sha256": "0533261a7a34d4f629a9f605e59db84a49409fd08b2d023add694752cffcc156",
+      "systemImage": "antenna.radiowaves.left.and.right",
+      "author": "VU3ESV",
+      "summary": "ESP8266 8-channel antenna switch controller (mDNS-discovered), hosted out-of-process (built from AntennaSwitchController)."
     }
   ]
 }
