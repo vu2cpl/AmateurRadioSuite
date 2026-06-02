@@ -9,3 +9,6 @@ dist/
 *.dmg
 xcuserdata/
 *.xcworkspace
+
+# Editor
+.vscode/
