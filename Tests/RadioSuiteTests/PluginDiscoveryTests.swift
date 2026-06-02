@@ -58,6 +58,35 @@ final class PluginDiscoveryTests: XCTestCase {
         mgr.setEnabled(true, for: "stub")
         XCTAssertEqual(mgr.activeEntries.count, 1)
     }
+
+    /// An out-of-process plugin is not runnable on the plain build (no ExtensionKit host
+    /// provider) — it's discovered but can't be loaded.
+    @MainActor
+    func testOutOfProcessNotRunnableWithoutProvider() {
+        OutOfProcessHosting.provider = nil
+        let m = RadioPluginManifest(id: "x", name: "X", version: "1.0", isolation: .outOfProcess)
+        let entry = PluginEntry(manifest: m, sourceKind: .installed, status: .discovered, make: nil)
+        XCTAssertTrue(entry.isOutOfProcess)
+        XCTAssertFalse(entry.isRunnable)
+    }
+
+    /// With a host provider installed (the Xcode/ExtensionKit layer), a discovered
+    /// out-of-process plugin becomes runnable iff the provider can host its `.appex`.
+    @MainActor
+    func testOutOfProcessRunnableWhenProviderCanHost() {
+        let provider = StubHostProvider()
+        provider.hostable = ["com.example.demosdr"]
+        OutOfProcessHosting.provider = provider
+        defer { OutOfProcessHosting.provider = nil }
+
+        let m = RadioPluginManifest(id: "com.example.demosdr", name: "Demo", version: "1.0",
+                                    isolation: .outOfProcess)
+        let entry = PluginEntry(manifest: m, sourceKind: .installed, status: .discovered, make: nil)
+        XCTAssertTrue(entry.isRunnable, "hostable out-of-process plugin should be runnable")
+
+        provider.hostable = []
+        XCTAssertFalse(entry.isRunnable, "no longer hostable -> drops out of the active set")
+    }
 }
 
 // MARK: - Test doubles
@@ -78,4 +107,12 @@ private struct StubSource: PluginSource {
         [PluginEntry(manifest: StubPlugin.manifest!, sourceKind: .builtIn,
                      status: .ready, make: { StubPlugin(host: SuitePluginHost()) })]
     }
+}
+
+/// Stand-in for the Xcode ExtensionKit host provider: hosts whatever ids it's told to.
+@MainActor
+private final class StubHostProvider: OutOfProcessHostProvider {
+    var hostable: Set<String> = []
+    func canHost(_ manifest: RadioPluginManifest) -> Bool { hostable.contains(manifest.id) }
+    func makeView(_ manifest: RadioPluginManifest) -> AnyView? { AnyView(EmptyView()) }
 }

@@ -51,17 +51,37 @@ xcodebuild -project RadioSuite.xcodeproj -scheme RadioSuiteHost \
   -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
 ```
 
-- `RadioSuiteHost` (app) reuses the package's `Sources/RadioSuite` verbatim and links the
-  SwiftPM plugin packages; it adds `Host/ExtensionHostView.swift` (`EXHostViewController`
-  hosting + `ExtensionDiscovery`).
+- `RadioSuiteHost` (app) reuses the package's `Sources/RadioSuite` verbatim (**excluding
+  `RadioSuiteApp.swift`** — the Xcode target's `@main` is `Host/HostApp.swift`) and links
+  **only `RadioPluginKit`** — no plugin apps. It adds the `Host/` layer:
+  `HostApp.swift` (the host `@main`, which installs the out-of-process provider),
+  `ExtensionHostView.swift` (`EXHostViewController` hosting + `ExtensionDiscovery`), and
+  `ExtensionHosting.swift` (`ExtensionHostProvider` + `ExtensionPluginSource`).
 - `DemoSDRExtension` (`.appex`, `type: extensionkit-extension`) is the sample out-of-process
   plugin; the app embeds it under `Contents/Extensions/`.
 - The project is **XcodeGen-authored** (`Xcode/project.yml`) but the generated `.xcodeproj` is
   committed — open and edit it in Xcode directly; XcodeGen is only needed to regenerate.
 
-**Remaining for a running demo:** Developer-ID signing + the runtime extension approval flow,
-and wiring `ExtensionHostView` into a live tab (driven by `ExtensionDiscovery`). The current
-project builds and embeds the extension with ad-hoc signing.
+### How the live tab is wired (done)
+
+`Sources/RadioSuite` exposes an `OutOfProcessHosting` **seam** (a provider protocol + the
+`bootstrap` hook). The plain SwiftPM build leaves it nil, so `swift build` stays a lean
+in-process build with no ExtensionKit. The Xcode `HostApp` fills it: at launch it installs
+`ExtensionHostProvider`, which
+
+1. discovers installed extensions via `AppExtensionIdentity.matching(appExtensionPointIDs:)`
+   and surfaces each as a `.discovered` `PluginEntry` (through `ExtensionPluginSource`) — no
+   `plugin.json` required for embedded/installed `.appex`es;
+2. makes such an entry **runnable** (`PluginEntry.isRunnable`) and renders its UI by handing
+   the matching `AppExtensionIdentity` to `ExtensionHostView` (`EXHostViewController`).
+
+**Correlation convention:** an out-of-process plugin's `manifest.id` **equals its extension's
+bundle identifier**. That is the key the provider hosts by, so a discovered extension and an
+on-disk `plugin.json` with the same `id` refer to the same plugin (and de-duplicate).
+
+**Remaining for a *running* demo:** Developer-ID signing + the runtime extension approval flow
+(needs an Apple Developer account). The code path — discover → entry → `EXHostViewController`
+— is complete and compiles; the project builds and embeds the extension with ad-hoc signing.
 
 ## Extension `Info.plist` (required keys)
 

@@ -25,8 +25,17 @@ struct PluginEntry: Identifiable {
     let make: (@MainActor () -> any RadioPlugin)?
     var id: String { manifest.id }
 
-    /// Can this plugin be shown as an active tab (loadable + a factory available)?
-    var isRunnable: Bool { status == .ready && make != nil }
+    /// A discovered, host-compatible plugin that runs out-of-process (ExtensionKit).
+    var isOutOfProcess: Bool { status == .discovered && manifest.isolation == .outOfProcess }
+
+    /// Can this plugin be shown as an active tab? In-process: a ready factory.
+    /// Out-of-process: the host has an ExtensionKit provider that can host its `.appex`.
+    @MainActor
+    var isRunnable: Bool {
+        if status == .ready, make != nil { return true }
+        if isOutOfProcess, OutOfProcessHosting.canHost(manifest) { return true }
+        return false
+    }
 }
 
 /// A provider of plugins (built-in, installed-on-disk, sideloaded…).
@@ -86,7 +95,7 @@ struct PluginEntry: Identifiable {
 @MainActor final class PluginManager: ObservableObject {
     @Published private(set) var entries: [PluginEntry] = []
 
-    private let sources: [PluginSource]
+    private var sources: [PluginSource]
     private let disabledKey = "suite.disabledPlugins"
     private let safeModeKey = "suite.safeMode"
     private let store: UserDefaults
@@ -109,6 +118,13 @@ struct PluginEntry: Identifiable {
     private var disabledIDs: Set<String> {
         get { Set(store.stringArray(forKey: disabledKey) ?? []) }
         set { store.set(Array(newValue), forKey: disabledKey) }
+    }
+
+    /// Add a plugin source at runtime (e.g. the Xcode host's ExtensionKit discovery) and
+    /// rescan. The plain SwiftPM build never calls this.
+    func addSource(_ source: any PluginSource) {
+        sources.append(source)
+        reload()
     }
 
     func isEnabled(_ id: String) -> Bool { !disabledIDs.contains(id) }
