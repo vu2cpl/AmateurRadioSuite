@@ -372,7 +372,7 @@ After these steps the suite can, for your plugin: **browse** it (catalog), **ins
 `EXHostViewController`. The full code path is in place and compiles.
 
 **Running a third-party plugin needs *three* gates open, not just signing** (full treatment:
-[EXTENSIONKIT.md → "the three gates"](EXTENSIONKIT.md#what-it-takes-to-actually-run-a-plugin--the-three-gates)):
+[EXTENSIONKIT.md "the three gates"](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/EXTENSIONKIT.md#what-it-takes-to-actually-run-a-plugin--the-three-gates)):
 
 1. **Host build** — the Suite must be the **Xcode host** build (the released SwiftPM/DMG build
    installs no `OutOfProcessHosting.provider`, so `canHost` is always false there).
