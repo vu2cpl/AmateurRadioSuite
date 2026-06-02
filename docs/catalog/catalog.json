@@ -33,6 +33,17 @@
       "systemImage": "gauge",
       "author": "VU3ESV",
       "summary": "LP-100A digital vector wattmeter, hosted out-of-process (built from LP-100A-App)."
+    },
+    {
+      "id": "org.vu3esv.radiosuite.BPF",
+      "name": "Band Pass Filter",
+      "latestVersion": "1.0.0",
+      "minHostVersion": "1.0",
+      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/bpf.radioplugin",
+      "sha256": "f8fc827c91bebc749c092ef4010999b574d9dcb5bffe001c1d01a92f14ed50b3",
+      "systemImage": "line.3.horizontal.decrease.circle",
+      "author": "VU3ESV",
+      "summary": "Band Pass Filter controller (mDNS-discovered), hosted out-of-process (built from BandPassFilterControllerApp)."
     }
   ]
 }
