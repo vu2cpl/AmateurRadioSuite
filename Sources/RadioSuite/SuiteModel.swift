@@ -1,71 +1,93 @@
 import SwiftUI
 import RadioPluginKit
 
-/// Owns the plugin instances, their cached root views, and the active selection.
-/// Views are built once and cached so switching tabs never recreates a plugin's
-/// view model or drops its connection.
+/// Owns the plugin manager, lazily instantiates active plugins, caches their root
+/// views, and tracks the active selection. Views/instances are built once and kept
+/// so switching tabs never recreates a plugin or drops its connection.
 @MainActor
 final class SuiteModel: ObservableObject {
     let host = SuitePluginHost()
-    let plugins: [any RadioPlugin]
+    let manager: PluginManager
 
-    @Published var selection: String
+    @Published var selection: String = ""
 
-    /// Plain, view-friendly description of each plugin for List/TabView.
+    /// Plain, view-friendly description of an active plugin for List/TabView.
     struct Entry: Identifiable, Hashable {
         let id: String
         let title: String
         let systemImage: String
     }
 
-    var entries: [Entry] {
-        plugins.map {
-            let m = type(of: $0).metadata
-            return Entry(id: m.id, title: m.title, systemImage: m.systemImage)
-        }
-    }
-
+    private var instances: [String: any RadioPlugin] = [:]
     private var cache: [String: AnyView] = [:]
     private var activated: Set<String> = []
 
     init() {
         let host = self.host
-        let plugins = PluginRegistry.all(host: host)
-        self.plugins = plugins
-        self.selection = plugins.first.map { type(of: $0).metadata.id } ?? ""
+        manager = PluginManager(sources: [
+            BuiltInPluginSource(host: host),
+            InstalledPluginSource(directory: InstalledPluginSource.defaultDirectory()),
+        ])
+        manager.reload()
+        selection = manager.activeEntries.first?.id ?? ""
     }
 
-    func plugin(for id: String) -> (any RadioPlugin)? {
-        plugins.first { type(of: $0).metadata.id == id }
+    /// Active (enabled + runnable) plugins, as tab/sidebar entries.
+    var entries: [Entry] {
+        manager.activeEntries.map { Entry(id: $0.id, title: $0.manifest.name, systemImage: $0.manifest.systemImage) }
     }
+
+    private func instance(for id: String) -> (any RadioPlugin)? {
+        if let p = instances[id] { return p }
+        guard let entry = manager.activeEntries.first(where: { $0.id == id }), let make = entry.make
+        else { return nil }
+        let p = make()
+        instances[id] = p
+        return p
+    }
+
+    func plugin(for id: String) -> (any RadioPlugin)? { instance(for: id) }
 
     /// Cached, lazily built root view for a plugin.
     func view(for id: String) -> AnyView {
         if let v = cache[id] { return v }
-        let v = plugin(for: id)?.makeRootView() ?? AnyView(EmptyView())
+        let v = instance(for: id)?.makeRootView() ?? AnyView(EmptyView())
         cache[id] = v
         return v
     }
 
-    /// Activate the initially selected plugin (once, at launch).
-    func activateInitial() {
-        activate(selection)
-    }
+    func activateInitial() { activate(selection) }
 
     /// Switch active plugin: deactivate the previous, activate the next.
     func select(_ id: String) {
         guard id != selection else { return }
-        plugin(for: selection)?.deactivate()
+        instances[selection]?.deactivate()
         selection = id
         activate(id)
     }
 
     private func activate(_ id: String) {
-        guard let p = plugin(for: id) else { return }
-        // Ensure the view (and its view model) exists before activating.
-        _ = view(for: id)
-        host.clearAttention(for: id)   // selecting a tab clears its badge/banner
+        guard let p = instance(for: id) else { return }
+        _ = view(for: id)                      // ensure the view (and view model) exists
+        host.clearAttention(for: id)           // selecting a tab clears its badge/banner
         p.activate()
         activated.insert(id)
+    }
+
+    /// Reconcile after enable/disable changes: tear down plugins that are no longer
+    /// active and fix the selection. Call when the manager's active set changes.
+    func reconcile() {
+        let active = Set(manager.activeEntries.map(\.id))
+        for id in instances.keys where !active.contains(id) {
+            instances[id]?.deactivate()
+            instances[id] = nil
+            cache[id] = nil
+            activated.remove(id)
+        }
+        if !active.contains(selection) {
+            selection = manager.activeEntries.first?.id ?? ""
+            if !selection.isEmpty { activate(selection) }
+        }
+        objectWillChange.send()
     }
 }

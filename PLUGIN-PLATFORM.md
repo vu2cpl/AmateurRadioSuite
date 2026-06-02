@@ -229,11 +229,14 @@ To keep third-party plugins visually coherent, ship a **design system** the SDK 
 
 ## 11. Phased roadmap
 
-1. **SDK hardening (no behavior change):** freeze + document the contract, add `PluginContext`,
-   manifest types, capability enum, theme/UI module (`RadioPluginUI`). First-party plugins adopt it.
-2. **PluginManager + dynamic discovery (in-process):** load first-party as today; add Application
-   Support discovery + an **in-process dynamic bundle** loader and a basic **Installed** UI. Proves
-   "add without recompile" end-to-end.
+1. ✅ **DONE — SDK hardening (no behavior change):** contract documented; `PluginContext`,
+   manifest types, capability enum, error/notification types added; `RadioPluginUI` design system
+   shipped (RadioPluginKit 1.1.0). First-party plugins adopted manifests.
+2. ✅ **DONE (discovery) — PluginManager + dynamic discovery:** `PluginManager` merges built-in +
+   installed (Application Support) sources; installed plugins are discovered from `plugin.json`
+   without recompiling, shown in a "Manage Plugins" UI with capabilities/status/enable toggles
+   (tested). *Running* installed plugins is the out-of-process step in phase 3 — discovered installed
+   plugins show as "out-of-process (soon)" rather than loading in-process.
 3. **Out-of-process tier (ExtensionKit):** define the extension point, build `EXHostViewController`
    hosting, the watchdog/restart/quarantine machinery, and the typed error/notification channel.
    Migrate the third-party path to this tier (crash isolation + sandbox).

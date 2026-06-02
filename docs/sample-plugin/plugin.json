@@ -1,0 +1,13 @@
+{
+  "id": "com.example.demosdr",
+  "name": "Demo SDR",
+  "version": "1.0.0",
+  "sdkVersion": "1.1",
+  "minHostVersion": "1.0",
+  "isolation": "out-of-process",
+  "capabilities": ["network.client", "notifications"],
+  "systemImage": "dot.radiowaves.left.and.right",
+  "author": "Example",
+  "homepage": "https://example.com/demosdr",
+  "iconResource": "icon.png"
+}

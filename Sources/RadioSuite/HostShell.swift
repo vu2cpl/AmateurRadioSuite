@@ -7,16 +7,21 @@ import RadioPluginUI
 struct HostShell: View {
     @ObservedObject var model: SuiteModel
     @ObservedObject var events: SuiteEvents
+    @ObservedObject var manager: PluginManager
     @AppStorage("suite.layout") private var layout = Layout.sidebar
+    @State private var showingManager = false
 
     /// Design-system theme injected into every plugin's view tree.
     private let theme = RadioTheme.dark
 
     enum Layout: String { case sidebar, tabs }
 
+    private var activeIDs: [String] { manager.activeEntries.map(\.id) }
+
     var body: some View {
         content
             .onAppear { model.activateInitial() }
+            .onChange(of: activeIDs) { _ in model.reconcile() }   // enable/disable → update tabs
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Button {
@@ -27,6 +32,16 @@ struct HostShell: View {
                     }
                     .help("Switch between sidebar and tabs")
                 }
+                ToolbarItem {
+                    Button {
+                        manager.reload()
+                        showingManager = true
+                    } label: { Image(systemName: "puzzlepiece.extension") }
+                    .help("Manage plugins")
+                }
+            }
+            .sheet(isPresented: $showingManager) {
+                PluginManagerView(manager: manager).radioTheme(theme)
             }
     }
 

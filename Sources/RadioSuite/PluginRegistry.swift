@@ -4,16 +4,25 @@ import LP700App
 import LP100AApp
 import BandPassFilterController
 
-/// The single edit point for adding/removing a plugin in the static model.
-/// To add a plugin: add its package dependency in Package.swift, then add it here.
+/// Compiled-in (trusted, in-process) plugins. The single edit point for adding a
+/// first-party plugin: add its package dependency in Package.swift, then add a row
+/// here. Each row pairs the plugin's static manifest with a factory; the manager
+/// reads the manifest without instantiating and builds the plugin lazily on demand.
 @MainActor
-enum PluginRegistry {
-    static func all(host: PluginHost) -> [any RadioPlugin] {
-        [
-            LP700Plugin(host: host),
-            LP100APlugin(host: host),
-            BPFPlugin(host: host),
+struct BuiltInPluginSource: PluginSource {
+    let kind: PluginSourceKind = .builtIn
+    let host: PluginHost
+
+    func discover() -> [PluginEntry] {
+        let rows: [(RadioPluginManifest?, @MainActor () -> any RadioPlugin)] = [
+            (LP700Plugin.manifest,  { LP700Plugin(host: host) }),
+            (LP100APlugin.manifest, { LP100APlugin(host: host) }),
+            (BPFPlugin.manifest,    { BPFPlugin(host: host) }),
         ]
+        return rows.compactMap { manifest, make in
+            guard let manifest else { return nil }
+            return PluginEntry(manifest: manifest, sourceKind: .builtIn, status: .ready, make: make)
+        }
     }
 }
 

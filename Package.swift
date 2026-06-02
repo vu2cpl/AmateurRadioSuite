@@ -28,5 +28,10 @@ let package = Package(
             ],
             path: "Sources/RadioSuite"
         ),
+        .testTarget(
+            name: "RadioSuiteTests",
+            dependencies: ["RadioSuite"],
+            path: "Tests/RadioSuiteTests"
+        ),
     ]
 )
