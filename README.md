@@ -12,8 +12,10 @@ adding a plugin never requires rebuilding the suite.
 
 ## Plugins
 
-Plugins are installed from within the app (**Manage Plugins → Browse / Install from
-File**), not built in. Apps published as installable plugins:
+The suite ships with **no plugins and an empty catalog** — nothing is baked in. You populate
+it from within the app: **Manage Plugins → Browse → “Add Plugin from File…”** points the app
+at a `.radioplugin`, which is added to your (persisted) catalog; from there you Install it.
+(You can also subscribe to a remote catalog URL.) Apps published as installable plugins:
 
 | Plugin | Source repo |
 |---|---|

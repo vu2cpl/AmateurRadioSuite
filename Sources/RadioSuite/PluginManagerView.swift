@@ -100,7 +100,7 @@ struct PluginManagerView: View {
                     browseRow(entry)
                 }
                 if model.catalog.entries.isEmpty {
-                    Text(model.catalog.lastError ?? "No catalog entries. Add a catalog source below or Refresh.")
+                    Text(model.catalog.lastError ?? "No plugins yet. Use “Add Plugin from File…” to browse a .radioplugin, or add a catalog source below.")
                         .font(.callout).foregroundStyle(.secondary)
                 }
             }
@@ -126,6 +126,7 @@ struct PluginManagerView: View {
         .listStyle(.inset)
         .safeAreaInset(edge: .bottom) {
             HStack {
+                Button { addFromFile() } label: { Label("Add Plugin from File…", systemImage: "plus") }
                 Button { refresh() } label: { Label("Refresh", systemImage: "arrow.clockwise") }
                 Spacer()
             }.padding(8)
@@ -147,6 +148,11 @@ struct PluginManagerView: View {
                 }
             }
             Spacer()
+            if model.catalog.isLocal(entry.id) {
+                Button { model.removeCatalogPlugin(id: entry.id); refresh() } label: {
+                    Image(systemName: "minus.circle")
+                }.buttonStyle(.borderless).help("Remove from catalog")
+            }
             installButton(entry)
         }
         .padding(.vertical, 4)
@@ -188,6 +194,21 @@ struct PluginManagerView: View {
             do { try model.installFromFile(url) }
             catch { model.host.notify(.init(level: .error, title: "Install failed",
                                              body: error.localizedDescription), from: "sideload") }
+        }
+    }
+
+    /// Browse a `.radioplugin` and add it to the catalog (it then appears in Browse, where it
+    /// can be installed). Lets the suite start empty and be populated by the user.
+    private func addFromFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = []
+        panel.allowsOtherFileTypes = true
+        panel.canChooseDirectories = false
+        panel.message = "Choose a .radioplugin to add to the catalog"
+        if panel.runModal() == .OK, let url = panel.url {
+            do { _ = try model.addCatalogPlugin(fromFile: url); refresh() }
+            catch { model.host.notify(.init(level: .error, title: "Couldn't add plugin",
+                                             body: error.localizedDescription), from: "catalog") }
         }
     }
 
