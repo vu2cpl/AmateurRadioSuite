@@ -8,6 +8,7 @@ import RadioPluginKit
 final class SuiteModel: ObservableObject {
     let host = SuitePluginHost()
     let manager: PluginManager
+    let supervisor = PluginSupervisor()
 
     @Published var selection: String = ""
 
@@ -24,10 +25,12 @@ final class SuiteModel: ObservableObject {
 
     init() {
         let host = self.host
+        let supervisor = self.supervisor
         manager = PluginManager(sources: [
             BuiltInPluginSource(host: host),
             InstalledPluginSource(directory: InstalledPluginSource.defaultDirectory()),
         ])
+        manager.isQuarantined = { supervisor.isQuarantined($0) }   // quarantined → drop from active
         manager.reload()
         selection = manager.activeEntries.first?.id ?? ""
     }

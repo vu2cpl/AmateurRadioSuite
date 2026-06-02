@@ -88,11 +88,22 @@ struct PluginEntry: Identifiable {
 
     private let sources: [PluginSource]
     private let disabledKey = "suite.disabledPlugins"
+    private let safeModeKey = "suite.safeMode"
     private let store: UserDefaults
+
+    /// Bridged to the supervisor so quarantined plugins drop out of the active set.
+    var isQuarantined: (String) -> Bool = { _ in false }
 
     init(sources: [PluginSource], store: UserDefaults = .standard) {
         self.sources = sources
         self.store = store
+    }
+
+    /// Host safe mode: when on, only first-party (built-in) plugins are active — a recovery
+    /// path when a third-party plugin misbehaves.
+    var safeMode: Bool {
+        get { store.bool(forKey: safeModeKey) }
+        set { store.set(newValue, forKey: safeModeKey); objectWillChange.send() }
     }
 
     private var disabledIDs: Set<String> {
@@ -124,13 +135,16 @@ struct PluginEntry: Identifiable {
         entries = byID.values.sorted { $0.manifest.name < $1.manifest.name }
     }
 
-    /// Plugins eligible to appear as active tabs: enabled + runnable in-process.
+    /// Plugins eligible to appear as active tabs: enabled, runnable, not quarantined, and —
+    /// in safe mode — built-in only.
     var activeEntries: [PluginEntry] {
         entries.filter { isRunnable($0) }
     }
 
     func isRunnable(_ entry: PluginEntry) -> Bool {
-        entry.isRunnable && isEnabled(entry.id)
+        guard entry.isRunnable, isEnabled(entry.id), !isQuarantined(entry.id) else { return false }
+        if safeMode && entry.sourceKind != .builtIn { return false }
+        return true
     }
 }
 

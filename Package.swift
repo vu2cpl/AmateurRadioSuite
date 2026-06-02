@@ -11,7 +11,7 @@ let package = Package(
         // The contract is consumed as a published library (same Git URL the plugin
         // repos use) so every chain resolves one identical RadioPluginKit — no
         // path-vs-URL identity conflict. The plugin apps stay local-path for dev.
-        .package(url: "https://github.com/VU3ESV/RadioPluginKit.git", from: "1.1.0"),
+        .package(url: "https://github.com/VU3ESV/RadioPluginKit.git", from: "1.2.0"),
         .package(path: "../LP-700-App"),
         .package(path: "../LP-100A-App"),
         .package(path: "../BandPassFilterControllerApp"),

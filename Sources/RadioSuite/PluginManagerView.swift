@@ -30,6 +30,12 @@ struct PluginManagerView: View {
     private var header: some View {
         HStack {
             Text("Plugins").font(.title2.weight(.semibold))
+            Toggle("Safe Mode", isOn: Binding(
+                get: { manager.safeMode },
+                set: { manager.safeMode = $0 }
+            ))
+            .toggleStyle(.switch)
+            .help("When on, only built-in (first-party) plugins run — recovery path for a misbehaving plugin.")
             Spacer()
             Button {
                 manager.reload()
