@@ -41,7 +41,7 @@ final class SuiteModel: ObservableObject {
         catalog = CatalogService()
         manager.reload()
         selection = Self.restoredSelection(saved: UserDefaults.standard.string(forKey: selectionKey),
-                                           active: manager.activeEntries.map(\.id))
+                                           active: manager.visibleEntries.map(\.id))
     }
 
     /// Restore the last-active plugin if it's still available, else the first, else none.
@@ -121,9 +121,10 @@ final class SuiteModel: ObservableObject {
         manager.entries.first { $0.id == id }?.sourceKind == .installed
     }
 
-    /// Active (enabled + runnable) plugins, as tab/sidebar entries.
+    /// Plugins shown as tab/sidebar entries: runnable ones plus installed out-of-process
+    /// plugins (which render an explanatory placeholder rather than vanishing).
     var entries: [Entry] {
-        manager.activeEntries.map { Entry(id: $0.id, title: $0.manifest.name, systemImage: $0.manifest.systemImage) }
+        manager.visibleEntries.map { Entry(id: $0.id, title: $0.manifest.name, systemImage: $0.manifest.systemImage) }
     }
 
     private func instance(for id: String) -> (any RadioPlugin)? {
@@ -143,7 +144,7 @@ final class SuiteModel: ObservableObject {
     func view(for id: String) -> AnyView {
         if let v = cache[id] { return v }
         let v: AnyView
-        if let entry = manager.activeEntries.first(where: { $0.id == id }), entry.isOutOfProcess {
+        if let entry = manager.visibleEntries.first(where: { $0.id == id }), entry.isOutOfProcess {
             v = OutOfProcessHosting.view(for: entry.manifest)
                 ?? AnyView(OutOfProcessUnavailableView(name: entry.manifest.name))
         } else {
@@ -175,15 +176,15 @@ final class SuiteModel: ObservableObject {
     /// Reconcile after enable/disable changes: tear down plugins that are no longer
     /// active and fix the selection. Call when the manager's active set changes.
     func reconcile() {
-        let active = Set(manager.activeEntries.map(\.id))
-        for id in instances.keys where !active.contains(id) {
+        let visible = Set(manager.visibleEntries.map(\.id))
+        for id in instances.keys where !visible.contains(id) {
             instances[id]?.deactivate()
             instances[id] = nil
             cache[id] = nil
             activated.remove(id)
         }
-        if !active.contains(selection) {
-            selection = manager.activeEntries.first?.id ?? ""
+        if !visible.contains(selection) {
+            selection = manager.visibleEntries.first?.id ?? ""
             if !selection.isEmpty { activate(selection) }
         }
         objectWillChange.send()

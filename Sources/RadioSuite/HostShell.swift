@@ -17,7 +17,7 @@ struct HostShell: View {
 
     enum Layout: String { case sidebar, tabs }
 
-    private var activeIDs: [String] { manager.activeEntries.map(\.id) }
+    private var activeIDs: [String] { manager.visibleEntries.map(\.id) }
 
     var body: some View {
         content
