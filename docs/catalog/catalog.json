@@ -10,51 +10,51 @@
       "sha256": "cceefd55d675bab1c17d6b1a14c9add5cf65d48f08eae783c5b2863e084ea808",
       "systemImage": "dot.radiowaves.left.and.right",
       "author": "Example",
-      "summary": "Sample out-of-process plugin (discovery demo; running needs signing)."
+      "summary": "Sample out-of-process plugin (in-repo demo; running needs signing)."
     },
     {
       "id": "org.vu3esv.radiosuite.LP700",
       "name": "LP-700",
       "latestVersion": "1.0.0",
       "minHostVersion": "1.0",
-      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/lp700.radioplugin",
-      "sha256": "d4858dccd22f1cd12e66eb4fef25072f49570ed09da746c3acfe0b2502d69557",
+      "url": "https://github.com/VU3ESV/LP-700-App/releases/download/v0.1.7/LP-700-App-0.1.7.radioplugin",
+      "sha256": "8d72ce5ac3f1689edfefdcefbf99527b0556dfe73ad1002cde0896940404b47a",
       "systemImage": "gauge.with.dots.needle.bottom.50percent",
       "author": "VU3ESV",
-      "summary": "LP-700/LP-500 wattmeter, hosted out-of-process (built from LP-700-App)."
+      "summary": "LP-700/LP-500 wattmeter, hosted out-of-process (released by LP-700-App)."
     },
     {
       "id": "org.vu3esv.radiosuite.LP100A",
       "name": "LP-100A",
       "latestVersion": "1.0.0",
       "minHostVersion": "1.0",
-      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/lp100a.radioplugin",
-      "sha256": "895ceb92b10e550ca7aa77590bf44a80cf42130be275157ae97aaa069e808053",
+      "url": "https://github.com/VU3ESV/LP-100A-App/releases/download/v0.2.9/LP-100A-App-0.2.9.radioplugin",
+      "sha256": "a021bd536d27915f392180409e64a91b2163e4c6ee82e65bfddadaf23296a9a3",
       "systemImage": "gauge",
       "author": "VU3ESV",
-      "summary": "LP-100A digital vector wattmeter, hosted out-of-process (built from LP-100A-App)."
+      "summary": "LP-100A digital vector wattmeter, hosted out-of-process (released by LP-100A-App)."
     },
     {
       "id": "org.vu3esv.radiosuite.BPF",
       "name": "Band Pass Filter",
       "latestVersion": "1.0.0",
       "minHostVersion": "1.0",
-      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/bpf.radioplugin",
-      "sha256": "f8fc827c91bebc749c092ef4010999b574d9dcb5bffe001c1d01a92f14ed50b3",
+      "url": "https://github.com/VU3ESV/BandPassFilterControllerApp/releases/download/v0.5.0/BandPassFilterController-v0.5.0.radioplugin",
+      "sha256": "2b388039a68338ebe666a8e18b2b68b0230bf26d0a872ca343b1eb4bfba48397",
       "systemImage": "line.3.horizontal.decrease.circle",
       "author": "VU3ESV",
-      "summary": "Band Pass Filter controller (mDNS-discovered), hosted out-of-process (built from BandPassFilterControllerApp)."
+      "summary": "Band Pass Filter controller (mDNS-discovered), hosted out-of-process (released by BandPassFilterControllerApp)."
     },
     {
       "id": "org.vu3esv.radiosuite.AntennaSwitch",
       "name": "Antenna Switch",
       "latestVersion": "1.0.0",
       "minHostVersion": "1.0",
-      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/antennaswitch.radioplugin",
-      "sha256": "0533261a7a34d4f629a9f605e59db84a49409fd08b2d023add694752cffcc156",
+      "url": "https://github.com/VU3ESV/AntennaSwitchController/releases/download/v0.1.2/AntennaSwitch.radioplugin",
+      "sha256": "f1b2a2513a37f6c488772a4566c9c4ef32286e4c63d2462f6b3a236491edf3ac",
       "systemImage": "antenna.radiowaves.left.and.right",
       "author": "VU3ESV",
-      "summary": "ESP8266 8-channel antenna switch controller (mDNS-discovered), hosted out-of-process (built from AntennaSwitchController)."
+      "summary": "ESP8266 8-channel antenna switch controller (mDNS-discovered), hosted out-of-process (released by AntennaSwitchController)."
     }
   ]
 }
