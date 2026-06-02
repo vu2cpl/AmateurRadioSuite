@@ -162,6 +162,20 @@ struct PluginEntry: Identifiable {
         if safeMode && entry.sourceKind != .builtIn { return false }
         return true
     }
+
+    /// Plugins shown in the main view: the runnable ones, plus installed out-of-process
+    /// plugins that aren't hostable in this build. The latter render an explanatory
+    /// placeholder (`OutOfProcessUnavailableView`) instead of silently vanishing — so a
+    /// freshly-installed plugin produces a visible tab rather than an empty window.
+    var visibleEntries: [PluginEntry] {
+        entries.filter { isVisible($0) }
+    }
+
+    func isVisible(_ entry: PluginEntry) -> Bool {
+        guard isEnabled(entry.id), !isQuarantined(entry.id) else { return false }
+        if safeMode && entry.sourceKind != .builtIn { return false }
+        return entry.isRunnable || entry.isOutOfProcess
+    }
 }
 
 /// Minimal dotted-numeric semantic-version comparison ("1.2" vs "1.10").

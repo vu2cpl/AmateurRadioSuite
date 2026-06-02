@@ -59,6 +59,24 @@ final class PluginDiscoveryTests: XCTestCase {
         XCTAssertEqual(mgr.activeEntries.count, 1)
     }
 
+    /// An installed out-of-process plugin is shown in the main view (visibleEntries) even
+    /// though it can't run here — so it renders an explanatory placeholder instead of
+    /// silently leaving the window empty. It is still NOT in the runnable active set, and
+    /// disabling it drops it from view.
+    @MainActor
+    func testOutOfProcessPluginIsVisibleButNotActive() {
+        OutOfProcessHosting.provider = nil
+        let store = UserDefaults(suiteName: "test.\(UUID().uuidString)")!
+        let mgr = PluginManager(sources: [OutOfProcessStubSource()], store: store)
+        mgr.reload()
+
+        XCTAssertEqual(mgr.visibleEntries.map(\.id), ["oop"], "discovered out-of-process plugin should be visible")
+        XCTAssertTrue(mgr.activeEntries.isEmpty, "but it is not runnable without a host provider")
+
+        mgr.setEnabled(false, for: "oop")
+        XCTAssertTrue(mgr.visibleEntries.isEmpty, "disabled out-of-process plugin should drop from the main view")
+    }
+
     /// An out-of-process plugin is not runnable on the plain build (no ExtensionKit host
     /// provider) — it's discovered but can't be loaded.
     @MainActor
@@ -106,6 +124,17 @@ private struct StubSource: PluginSource {
     func discover() -> [PluginEntry] {
         [PluginEntry(manifest: StubPlugin.manifest!, sourceKind: .builtIn,
                      status: .ready, make: { StubPlugin(host: SuitePluginHost()) })]
+    }
+}
+
+/// Emits one discovered, host-compatible out-of-process plugin (as InstalledPluginSource
+/// would for an installed `.appex` + manifest).
+@MainActor
+private struct OutOfProcessStubSource: PluginSource {
+    let kind: PluginSourceKind = .installed
+    func discover() -> [PluginEntry] {
+        let m = RadioPluginManifest(id: "oop", name: "OOP", version: "1.0", isolation: .outOfProcess)
+        return [PluginEntry(manifest: m, sourceKind: .installed, status: .discovered, make: nil)]
     }
 }
 
