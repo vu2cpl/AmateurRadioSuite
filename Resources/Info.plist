@@ -8,10 +8,11 @@
     <string>Amateur Radio Suite</string>
     <key>CFBundleIdentifier</key>
     <string>org.vu3esv.radiosuite</string>
+    <!-- Placeholder: build-app.sh stamps the real version (release tag) at build time. -->
     <key>CFBundleVersion</key>
-    <string>1.0</string>
+    <string>0.0.0-dev</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>0.0.0-dev</string>
     <key>CFBundleExecutable</key>
     <string>RadioSuite</string>
     <key>CFBundleIconFile</key>
