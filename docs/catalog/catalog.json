@@ -22,6 +22,17 @@
       "systemImage": "gauge.with.dots.needle.bottom.50percent",
       "author": "VU3ESV",
       "summary": "LP-700/LP-500 wattmeter, hosted out-of-process (built from LP-700-App)."
+    },
+    {
+      "id": "org.vu3esv.radiosuite.LP100A",
+      "name": "LP-100A",
+      "latestVersion": "1.0.0",
+      "minHostVersion": "1.0",
+      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioSuite/main/docs/catalog/lp100a.radioplugin",
+      "sha256": "895ceb92b10e550ca7aa77590bf44a80cf42130be275157ae97aaa069e808053",
+      "systemImage": "gauge",
+      "author": "VU3ESV",
+      "summary": "LP-100A digital vector wattmeter, hosted out-of-process (built from LP-100A-App)."
     }
   ]
 }
