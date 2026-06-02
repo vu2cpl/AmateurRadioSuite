@@ -79,9 +79,69 @@ in-process build with no ExtensionKit. The Xcode `HostApp` fills it: at launch i
 bundle identifier**. That is the key the provider hosts by, so a discovered extension and an
 on-disk `plugin.json` with the same `id` refer to the same plugin (and de-duplicate).
 
-**Remaining for a *running* demo:** Developer-ID signing + the runtime extension approval flow
-(needs an Apple Developer account). The code path — discover → entry → `EXHostViewController`
-— is complete and compiles; the project builds and embeds the extension with ad-hoc signing.
+**Remaining for a *running* demo:** see the three gates below. The code path — discover →
+entry → `EXHostViewController` — is complete and compiles; the project builds and embeds the
+extension with ad-hoc signing.
+
+## What it takes to actually *run* a plugin — the three gates
+
+A common misconception is that Developer-ID signing + notarization is the only thing standing
+between an installed `.radioplugin` and a running plugin. It is **necessary but not
+sufficient**. Three independent gates must *all* be open; signing is only one of them.
+
+### Gate 1 — the Suite must be the **Xcode host** build
+A plugin is hostable only when `OutOfProcessHosting.provider != nil`. The released DMG is the
+plain `swift build` (SwiftPM) artifact, which **never installs a provider** — so
+`canHost(_:)` is always `false` there, regardless of how the `.appex` is signed. Only the
+`RadioSuiteHost` Xcode target installs `ExtensionHostProvider` (see
+[`Xcode/Host/ExtensionHosting.swift`](../Xcode/Host/ExtensionHosting.swift)). **A signed
+plugin still won't load in the SwiftPM/DMG build.**
+
+### Gate 2 — the `.appex` must be **registered with macOS**, not just on disk
+Discovery goes through the **system extension registry**, not the Suite's plugins folder:
+
+```swift
+AppExtensionIdentity.matching(appExtensionPointIDs: RadioExtensionPoint.identifier)
+```
+
+The *Browse → Add Plugin from File… → Install* flow only unzips the `.appex` into
+`~/Library/Application Support/AmateurRadioSuite/Plugins/`. macOS does **not** know that
+extension exists, so `AppExtensionIdentity.matching` never returns it and
+`ExtensionHostProvider.identities[manifest.id]` stays empty. macOS registers an app extension
+only when it is **embedded inside an installed, launched container app** (under
+`Contents/Extensions/`). **A loose `.appex` in Application Support — even signed and notarized
+— is never discovered.**
+
+### Gate 3 — Developer-ID signing + notarization + user approval
+Needed so macOS will *load and run* the sandboxed extension process and pass the runtime
+approval prompt. Ad-hoc signing (what the scripts/CI use) is fine for building, packaging, and
+the discovery/catalog flow — not for loading an untrusted extension. This gate does nothing
+about Gates 1 and 2.
+
+| Gate | Released build today | What opens it |
+|------|----------------------|---------------|
+| 1. Host provider present | ✗ (DMG has none) | ship the Suite as the **Xcode host** build |
+| 2. Extension registered with macOS | ✗ (browse-install only drops a folder) | deliver the `.appex` **embedded in an installed app** |
+| 3. Signed + notarized + approved | ✗ (ad-hoc) | **Developer-ID + notarization** (Apple Developer account) |
+
+### What the `.radioplugin` flow actually is
+Today the browse/install flow is a **catalog / manifest-display** mechanism: it lets the Suite
+*show* a plugin (name, version, capabilities, the "runs out-of-process" placeholder tab)
+before any code runs. It is **not** the mechanism that makes macOS load the extension.
+
+### The recommended path to "it just works"
+To make signed plugins genuinely load, the extension must get **system-registered**, which on
+macOS practically means one of:
+
+- **Each plugin ships as its own app** whose `.dmg`/bundle already embeds the `.appex` under
+  `Contents/Extensions/` (e.g. `LP-100A-App.app`). Installing it to `/Applications` and
+  launching once registers the embedded extension; the Xcode-host Suite then discovers and
+  hosts it. The `.radioplugin`/catalog becomes pure discovery metadata pointing at that app.
+- **or** the Suite embeds approved extensions at build time (as the in-repo `DemoSDR` sample
+  does).
+
+This collapses the three gates into a single install step (plus the Apple Developer account
+for Gate 3): the standalone app install *also* registers the extension for the Suite to host.
 
 ## Extension `Info.plist` (required keys)
 

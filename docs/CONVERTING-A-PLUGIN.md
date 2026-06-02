@@ -371,14 +371,25 @@ After these steps the suite can, for your plugin: **browse** it (catalog), **ins
 (checksum-verified), **discover** it, and — in the Xcode host build — **host** it via
 `EXHostViewController`. The full code path is in place and compiles.
 
-**The remaining gate to a *running* third-party plugin is Apple code-signing:** macOS only
-surfaces an ExtensionKit extension (`AppExtensionIdentity.matching`) once its container is
-**registered with the system** — i.e. Developer-ID signed + notarized + approved. A `.appex`
-merely unzipped into Application Support is **not** auto-registered. Ad-hoc signing (what the
-script/CI uses) is fine for building and the discovery/catalog flow, not for loading an
-untrusted extension. Until then an installed out-of-process plugin lists as **discovered**
-and shows the "runs out-of-process" placeholder in the plain build; the Xcode host build
-hosts it once the extension is registered/approved.
+**Running a third-party plugin needs *three* gates open, not just signing** (full treatment:
+[EXTENSIONKIT.md → "the three gates"](EXTENSIONKIT.md#what-it-takes-to-actually-run-a-plugin--the-three-gates)):
+
+1. **Host build** — the Suite must be the **Xcode host** build (the released SwiftPM/DMG build
+   installs no `OutOfProcessHosting.provider`, so `canHost` is always false there).
+2. **Registration** — the `.appex` must be **registered with macOS**. Discovery is via
+   `AppExtensionIdentity.matching`, which reads the *system* extension registry — macOS only
+   registers an extension that is **embedded in an installed, launched app** (`Contents/
+   Extensions/`). A `.appex` merely unzipped into Application Support by the install flow is
+   **never** discovered.
+3. **Signing** — Developer-ID signed + notarized + approved (ad-hoc, what the script/CI use,
+   is fine for building and the discovery/catalog flow, not for loading an untrusted one).
+
+So the `.radioplugin` browse/install flow is a **catalog/manifest-display** mechanism, not the
+load mechanism. The cleanest path to "it just works" is to **embed the `.appex` in the app's
+own installed bundle** (`Contents/Extensions/`) so a single standalone-app install also
+registers the extension for the Xcode-host Suite to host. Until all three gates are open, an
+installed out-of-process plugin lists as **discovered** and shows the "runs out-of-process"
+placeholder.
 
 ---
 
