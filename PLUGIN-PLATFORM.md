@@ -251,8 +251,9 @@ To keep third-party plugins visually coherent, ship a **design system** the SDK 
    catalog + `.radioplugin` ship under `docs/catalog/`. Tested. **Deferred:** code-signature /
    notarization verification (needed before *running* untrusted plugins — gated on a signing
    identity); installs are checksum-verified for now and land as `discovered` (out-of-process tier).
-5. **Polish:** design-system rollout + style lint, onboarding, command palette, state restoration,
-   safe mode, docs + template + validator CLI.
+5. 🟢 **DONE (core) — Polish:** unified Settings hub (General + per-plugin `settingsView`), single
+   suite About panel, command palette (⌘⇧P), tab/layout state restoration, onboarding, Safe Mode,
+   design system in use. _Remaining nice-to-haves:_ a style lint and a plugin-validator CLI.
 
 ---
 

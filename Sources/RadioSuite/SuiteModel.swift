@@ -12,6 +12,10 @@ final class SuiteModel: ObservableObject {
     let catalog: CatalogService
 
     @Published var selection: String = ""
+    /// Drives the command-palette sheet (toggled from the menu / ⌘⇧P).
+    @Published var paletteOpen = false
+
+    private let selectionKey = "suite.lastSelection"
 
     /// Plain, view-friendly description of an active plugin for List/TabView.
     struct Entry: Identifiable, Hashable {
@@ -36,7 +40,13 @@ final class SuiteModel: ObservableObject {
             URL(string: "https://raw.githubusercontent.com/VU3ESV/AmateurRadioApps/main/docs/catalog/catalog.json")!
         ])
         manager.reload()
-        selection = manager.activeEntries.first?.id ?? ""
+        selection = Self.restoredSelection(saved: UserDefaults.standard.string(forKey: selectionKey),
+                                           active: manager.activeEntries.map(\.id))
+    }
+
+    /// Restore the last-active plugin if it's still available, else the first, else none.
+    static func restoredSelection(saved: String?, active: [String]) -> String {
+        (saved.flatMap { active.contains($0) ? $0 : nil }) ?? active.first ?? ""
     }
 
     // MARK: - Install / uninstall (Phase 4)
@@ -106,6 +116,7 @@ final class SuiteModel: ObservableObject {
         guard id != selection else { return }
         instances[selection]?.deactivate()
         selection = id
+        UserDefaults.standard.set(id, forKey: selectionKey)   // restore on next launch
         activate(id)
     }
 

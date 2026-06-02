@@ -9,6 +9,7 @@ struct HostShell: View {
     @ObservedObject var events: SuiteEvents
     @ObservedObject var manager: PluginManager
     @AppStorage("suite.layout") private var layout = Layout.sidebar
+    @AppStorage("suite.didOnboard") private var didOnboard = false
     @State private var showingManager = false
 
     /// Design-system theme injected into every plugin's view tree.
@@ -42,6 +43,12 @@ struct HostShell: View {
             }
             .sheet(isPresented: $showingManager) {
                 PluginManagerView(model: model).radioTheme(theme)
+            }
+            .sheet(isPresented: $model.paletteOpen) {
+                CommandPaletteView(model: model).radioTheme(theme)
+            }
+            .sheet(isPresented: Binding(get: { !didOnboard }, set: { if $0 == false { didOnboard = true } })) {
+                OnboardingView().radioTheme(theme)
             }
     }
 
