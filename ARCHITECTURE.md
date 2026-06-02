@@ -210,8 +210,10 @@ graph LR
 | UI | direct SwiftUI `AnyView` | remote view via `EXHostViewController` |
 
 The **same `RadioPlugin` abstraction** describes both tiers; only the transport differs.
-Today the four bundled plugins are `in-process`. Installed third-party plugins are
-**discovered** from disk and are slated to run `out-of-process` (see §8 and
+The host **links no plugin app modules** — every plugin is **discovered from disk** at
+runtime (installed from a catalog or sideloaded) and runs **out-of-process**. The
+in-process tier remains in the contract for vetted/embedded use, but the shipping suite
+compiles in nothing (see §8 and
 [PLUGIN-PLATFORM.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/PLUGIN-PLATFORM.md) for status).
 
 ---
@@ -228,7 +230,6 @@ graph TD
     Model --> HostCtx["SuitePluginHost\nlog / defaults / report / notify / setBadge"]
     Model --> Sup["PluginSupervisor\ncrash backoff + quarantine"]
     Model --> Cat["CatalogService\nfetch + merge catalogs"]
-    Manager --> SrcB["BuiltInPluginSource\n(compiled-in plugins)"]
     Manager --> SrcI["InstalledPluginSource\n(~/Library/Application Support/…/Plugins)"]
     HostCtx --> Events["SuiteEvents\nbanner + badges + feed"]
     Shell -.observes.-> Events
@@ -236,15 +237,14 @@ graph TD
 
 - **`PluginManager`** ([`PluginManager.swift`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/Sources/RadioSuite/PluginManager.swift))
   is the single source of truth for *what plugins exist*. It merges sources, owns the
-  persisted enable/disable set and **Safe Mode**, and publishes `entries`. Built-in
-  entries win on id collisions so an installed plugin can't shadow a first-party one.
-- **Sources** implement `PluginSource.discover() -> [PluginEntry]`:
-  - `BuiltInPluginSource` ([`PluginRegistry.swift`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/Sources/RadioSuite/PluginRegistry.swift))
-    pairs each compiled-in plugin's static `manifest` with a lazy factory. **This is the
-    single edit point for adding a first-party plugin.**
-  - `InstalledPluginSource` reads each `plugin.json` under
-    `~/Library/Application Support/AmateurRadioSuite/Plugins/<id>/` **without loading any
-    code** and marks it `.discovered` (or `.incompatible` if the manifest rejects this host).
+  persisted enable/disable set and **Safe Mode**, and publishes `entries`. (The
+  collision rule still prefers a built-in entry on a duplicate id, should an embedded
+  build ever add one — see §4 note.)
+- **Source**: `InstalledPluginSource` ([`PluginManager.swift`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/Sources/RadioSuite/PluginManager.swift))
+  reads each `plugin.json` under
+  `~/Library/Application Support/AmateurRadioSuite/Plugins/<id>/` **without loading any
+  code** and marks it `.discovered` (or `.incompatible` if the manifest rejects this host).
+  Sideloads land in the same directory. The shipping host registers no other source.
 - **`SuiteModel`** ([`SuiteModel.swift`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/Sources/RadioSuite/SuiteModel.swift))
   lazily instantiates active plugins, **caches their root views and instances** (so
   switching tabs never recreates a plugin or drops its connection), tracks the selection,
@@ -253,17 +253,16 @@ graph TD
   renders the sidebar or tabs, draws the per-plugin error **banner** above each pane,
   draws badges, and injects the `RadioTheme` into every plugin's view subtree.
 
-### Adding a first-party (in-process) plugin to the host
+### Adding a plugin
 
-1. Add the plugin's package as a dependency in
-   [`Package.swift`](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/Package.swift).
-2. Add one row to `BuiltInPluginSource.discover()`:
-   ```swift
-   (MyRigPlugin.manifest, { MyRigPlugin(host: host) }),
-   ```
+The shipping host compiles in nothing — you **install** a plugin at runtime (Manage
+Plugins → Browse / Install from File) and it is discovered from disk. No host recompile,
+ever. See §6 (what an app must ship) and §9 (the install flow).
 
-That's it — no other host code changes. Installed (out-of-process) plugins need **no host
-recompile at all**; they are discovered from disk.
+> **Embedded/in-process builds (optional):** the contract still supports linking a vetted
+> plugin in-process. To do that in a custom build, add the plugin's SwiftPM library to
+> `Package.swift` and register it in a small built-in `PluginSource` that pairs each
+> `manifest` with a `make` factory (`status: .ready`). The default suite ships without one.
 
 ---
 
@@ -645,10 +644,10 @@ has no `Info.plist` / activation policy). Requires **macOS 14+**.
 6. Use `RadioPluginUI` + `@Environment(\.radioTheme)`; never draw window chrome or use `UserDefaults.standard`.
 7. Report problems via `host.report` / `host.notify`; set attention with `host.setBadge`.
 8. Declare capabilities for everything you touch.
-9. **In-process (first-party):** expose a SwiftPM library product → add to the host's
-   `Package.swift` + one row in `BuiltInPluginSource`.
-   **Out-of-process (third-party):** build an Xcode `.appex` declaring the extension point,
-   ship `plugin.json`, package as `.radioplugin`, list it in a catalog.
+9. **Ship it as an installable plugin (the default path):** build an Xcode `.appex`
+   declaring the extension point, ship `plugin.json`, package as `.radioplugin`, and list
+   it in a catalog — the host installs it at runtime, no recompile.
+   *(In-process linking remains possible for custom embedded builds — see §4.)*
 10. (Optional) implement `persistState()` / `restoreState()` for restart/crash recovery.
 
 ---

@@ -2,7 +2,8 @@ name: Release
 
 # Publishes a GitHub Release every time a PR is merged into main.
 # Version is an automatic patch bump of the latest v-prefixed tag (seeded at v0.1.0).
-# Artifacts: a zipped universal .app and a .dmg, built with build-app.sh.
+# Artifacts: a zipped universal .app and a .dmg, built with build-app.sh. The host
+# links only RadioPluginKit, so the build is standalone (no sibling checkout).
 
 on:
   pull_request:
@@ -16,11 +17,6 @@ concurrency:
   group: release
   cancel-in-progress: false
 
-env:
-  # See ci.yml: prefer the plugin-architecture branch, fall back to main when it's
-  # gone, so releases keep building as plugin PRs merge onto their default branch.
-  PLUGIN_REF: plugin-architecture
-
 jobs:
   release:
     # Only on an actual merge — closing a PR without merging must not release.
@@ -28,36 +24,14 @@ jobs:
     name: Build & publish release (macOS 14)
     runs-on: macos-14
     steps:
-      - name: Check out suite (merged main)
+      - name: Check out merged main
         uses: actions/checkout@v5
         with:
-          path: AmateurRadioSuite
           ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0
 
-      - name: Check out sibling plugin repos
-        env:
-          SIBLINGS_TOKEN: ${{ secrets.SIBLINGS_TOKEN }}
-        run: |
-          set -euo pipefail
-          cd "$GITHUB_WORKSPACE"
-          auth=""
-          [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
-          clone() {
-            local name="$1" url="https://${auth}github.com/VU3ESV/${1}.git" ref="$PLUGIN_REF"
-            # Prefer $PLUGIN_REF; fall back to the default branch (main) if it's gone.
-            git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref="main"
-            echo "▶ $name @ $ref"
-            git clone --depth 1 --branch "$ref" "$url" "$name"
-          }
-          clone LP-700-App
-          clone LP-100A-App
-          clone BandPassFilterControllerApp
-          clone AntennaSwitchController
-
       - name: Compute next version (patch bump)
         id: ver
-        working-directory: AmateurRadioSuite
         run: |
           set -euo pipefail
           git fetch --tags --force
@@ -74,11 +48,9 @@ jobs:
           echo "version=${next#v}"    >> "$GITHUB_OUTPUT"
 
       - name: Build universal .app
-        working-directory: AmateurRadioSuite
         run: ./build-app.sh
 
       - name: Package .zip and .dmg
-        working-directory: AmateurRadioSuite
         run: |
           set -euo pipefail
           V="${{ steps.ver.outputs.version }}"
@@ -89,7 +61,6 @@ jobs:
           ls -lh AmateurRadioSuite-"$V".zip AmateurRadioSuite-"$V".dmg
 
       - name: Create GitHub Release
-        working-directory: AmateurRadioSuite
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

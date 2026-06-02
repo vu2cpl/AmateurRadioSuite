@@ -29,10 +29,10 @@ final class SuiteModel: ObservableObject {
     private var activated: Set<String> = []
 
     init() {
-        let host = self.host
         let supervisor = self.supervisor
+        // No built-in source: the host links no plugin apps. Plugins are discovered
+        // on disk (installed/sideloaded) and run out-of-process via ExtensionKit.
         manager = PluginManager(sources: [
-            BuiltInPluginSource(host: host),
             InstalledPluginSource(directory: InstalledPluginSource.defaultDirectory()),
         ])
         manager.isQuarantined = { supervisor.isQuarantined($0) }   // quarantined → drop from active
