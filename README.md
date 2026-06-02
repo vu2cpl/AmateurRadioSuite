@@ -3,33 +3,31 @@
 A single macOS container app that hosts independent amateur-radio control apps as
 **plugins** in one window — switchable between a vertical sidebar and horizontal tabs.
 
-Each app stays in its own repository and continues to ship as a standalone `.app`;
-the suite loads it through the [`RadioPluginKit`](https://github.com/VU3ESV/RadioPluginKit)
-contract. Static SwiftPM plugin model — the container links each app as a library
-conforming to `RadioPlugin` and registers it in [`PluginRegistry`](Sources/RadioSuite/PluginRegistry.swift).
+Each app stays in its own repository and ships as a standalone `.app`; the suite
+loads it through the [`RadioPluginKit`](https://github.com/VU3ESV/RadioPluginKit)
+contract. The host links **only the contract** — it does not compile in any plugin.
+Plugins are **discovered and installed at runtime** (browse a catalog or sideload a
+`.radioplugin`) and run **out-of-process** as sandboxed ExtensionKit extensions, so
+adding a plugin never requires rebuilding the suite.
 
-## Plugins wired
+## Plugins
+
+Plugins are installed from within the app (**Manage Plugins → Browse / Install from
+File**), not built in. Apps published as installable plugins:
 
 | Plugin | Source repo |
 |---|---|
 | LP-700 | [LP-700-App](https://github.com/VU3ESV/LP-700-App) |
 | LP-100A | [LP-100A-App](https://github.com/VU3ESV/LP-100A-App) |
 | Band Pass Filter | [BandPassFilterControllerApp](https://github.com/VU3ESV/BandPassFilterControllerApp) |
+| Antenna Switch | [AntennaSwitchController](https://github.com/VU3ESV/AntennaSwitchController) |
 
 Planned: SPE amplifier (MacExpert), SO2R Box.
 
 ## Build & run
 
-This package uses **local path dependencies**, so clone the plugin repos as siblings:
-
-```
-Projects/
-  RadioPluginKit/
-  LP-700-App/
-  LP-100A-App/
-  BandPassFilterControllerApp/
-  AmateurRadioSuite/   ← this repo
-```
+The suite builds standalone — its only dependency is `RadioPluginKit` (resolved from
+its Git URL), so **no sibling repos are needed**:
 
 ```sh
 ./build-app.sh

@@ -1,8 +1,8 @@
 name: CI
 
-# Build + test the container on every PR and on pushes to main.
-# The suite links the four plugin apps via LOCAL PATH dependencies (../LP-700-App …),
-# so CI must check those sibling repos out next to this one before building.
+# Build + test the container on every PR and on pushes to main. The host links only
+# RadioPluginKit (plugins are installed at runtime), so this is a standalone SwiftPM
+# build — no sibling repos to check out.
 
 on:
   pull_request:
@@ -14,52 +14,18 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Sibling plugin repos are linked via local-path deps. While their RadioPlugin
-  # adapters migrate from `plugin-architecture` onto `main`, prefer that branch and
-  # fall back to `main` when it's gone — so the build self-heals as each plugin PR
-  # merges (and its feature branch is deleted). Override the preferred branch here.
-  PLUGIN_REF: plugin-architecture
-
 jobs:
   build-test:
     name: Build & test (macOS 14)
     runs-on: macos-14
     steps:
-      - name: Check out suite
-        uses: actions/checkout@v5
-        with:
-          path: AmateurRadioSuite
-
-      - name: Check out sibling plugin repos
-        env:
-          # Optional PAT — only needed if the sibling repos are PRIVATE. For public
-          # repos, anonymous clone works and this can be left unset.
-          SIBLINGS_TOKEN: ${{ secrets.SIBLINGS_TOKEN }}
-        run: |
-          set -euo pipefail
-          cd "$GITHUB_WORKSPACE"
-          auth=""
-          [ -n "${SIBLINGS_TOKEN:-}" ] && auth="x-access-token:${SIBLINGS_TOKEN}@"
-          clone() {
-            local name="$1" url="https://${auth}github.com/VU3ESV/${1}.git" ref="$PLUGIN_REF"
-            # Prefer $PLUGIN_REF; fall back to the default branch (main) if it's gone.
-            git ls-remote --exit-code --heads "$url" "$ref" >/dev/null 2>&1 || ref="main"
-            echo "▶ $name @ $ref"
-            git clone --depth 1 --branch "$ref" "$url" "$name"
-          }
-          clone LP-700-App
-          clone LP-100A-App
-          clone BandPassFilterControllerApp
-          clone AntennaSwitchController
+      - uses: actions/checkout@v5
 
       - name: Swift version
         run: swift --version
 
       - name: Build
-        working-directory: AmateurRadioSuite
         run: swift build -v
 
       - name: Test
-        working-directory: AmateurRadioSuite
         run: swift test

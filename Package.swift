@@ -8,14 +8,10 @@ let package = Package(
         .executable(name: "RadioSuite", targets: ["RadioSuite"]),
     ],
     dependencies: [
-        // The contract is consumed as a published library (same Git URL the plugin
-        // repos use) so every chain resolves one identical RadioPluginKit — no
-        // path-vs-URL identity conflict. The plugin apps stay local-path for dev.
+        // The host links ONLY the contract. Plugins are not compiled in — they are
+        // discovered and installed at runtime (out-of-process ExtensionKit `.appex`),
+        // so the suite builds standalone with no reference to any plugin app repo.
         .package(url: "https://github.com/VU3ESV/RadioPluginKit.git", from: "1.2.0"),
-        .package(path: "../LP-700-App"),
-        .package(path: "../LP-100A-App"),
-        .package(path: "../BandPassFilterControllerApp"),
-        .package(name: "AntennaSwitchControllerApp", path: "../AntennaSwitchController/App"),
     ],
     targets: [
         .executableTarget(
@@ -23,10 +19,6 @@ let package = Package(
             dependencies: [
                 .product(name: "RadioPluginKit", package: "RadioPluginKit"),
                 .product(name: "RadioPluginUI", package: "RadioPluginKit"),
-                .product(name: "LP700App", package: "LP-700-App"),
-                .product(name: "LP100AApp", package: "LP-100A-App"),
-                .product(name: "BandPassFilterControllerKit", package: "BandPassFilterControllerApp"),
-                .product(name: "AntennaSwitchControllerKit", package: "AntennaSwitchControllerApp"),
             ],
             path: "Sources/RadioSuite"
         ),

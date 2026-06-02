@@ -1,32 +1,9 @@
 import Foundation
 import RadioPluginKit
-import LP700App
-import LP100AApp
-import BandPassFilterController
-import AntennaSwitchController
 
-/// Compiled-in (trusted, in-process) plugins. The single edit point for adding a
-/// first-party plugin: add its package dependency in Package.swift, then add a row
-/// here. Each row pairs the plugin's static manifest with a factory; the manager
-/// reads the manifest without instantiating and builds the plugin lazily on demand.
-@MainActor
-struct BuiltInPluginSource: PluginSource {
-    let kind: PluginSourceKind = .builtIn
-    let host: PluginHost
-
-    func discover() -> [PluginEntry] {
-        let rows: [(RadioPluginManifest?, @MainActor () -> any RadioPlugin)] = [
-            (LP700Plugin.manifest,         { LP700Plugin(host: host) }),
-            (LP100APlugin.manifest,        { LP100APlugin(host: host) }),
-            (BPFPlugin.manifest,           { BPFPlugin(host: host) }),
-            (AntennaSwitchPlugin.manifest, { AntennaSwitchPlugin(host: host) }),
-        ]
-        return rows.compactMap { manifest, make in
-            guard let manifest else { return nil }
-            return PluginEntry(manifest: manifest, sourceKind: .builtIn, status: .ready, make: make)
-        }
-    }
-}
+// The host links no plugin app modules. Plugins are discovered and installed at
+// runtime (see `InstalledPluginSource`) and run out-of-process via ExtensionKit, so
+// there is no compiled-in `BuiltInPluginSource` here.
 
 /// Observable sink for plugin-reported events the host UI renders: a per-plugin
 /// inline banner, sidebar/tab badges, and a notification feed.
