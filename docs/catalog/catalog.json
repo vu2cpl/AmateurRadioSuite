@@ -1,0 +1,16 @@
+{
+  "name": "Amateur Radio Suite — Official",
+  "plugins": [
+    {
+      "id": "com.example.demosdr",
+      "name": "Demo SDR",
+      "latestVersion": "1.0.0",
+      "minHostVersion": "1.0",
+      "url": "https://raw.githubusercontent.com/VU3ESV/AmateurRadioApps/main/docs/catalog/demosdr.radioplugin",
+      "sha256": "cceefd55d675bab1c17d6b1a14c9add5cf65d48f08eae783c5b2863e084ea808",
+      "systemImage": "dot.radiowaves.left.and.right",
+      "author": "Example",
+      "summary": "Sample out-of-process plugin (discovery demo; running needs signing)."
+    }
+  ]
+}

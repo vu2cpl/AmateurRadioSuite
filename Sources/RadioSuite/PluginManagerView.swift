@@ -1,12 +1,15 @@
 import SwiftUI
+import AppKit
 import RadioPluginKit
 import RadioPluginUI
 
-/// "Manage Plugins" sheet: lists every discovered plugin (built-in + installed) with
-/// its source, status, capabilities, and an enable toggle. Installed plugins appear
-/// here without recompiling the container — proving dynamic discovery.
+/// "Manage Plugins" sheet: an **Installed** tab (built-in + on-disk plugins with enable/
+/// uninstall) and a **Browse** tab (catalog entries with install/update). Installed plugins
+/// appear without recompiling the container; browse/install lands packages on disk where
+/// discovery finds them. (Running third-party plugins is the out-of-process tier, gated on
+/// code-signing — see docs/EXTENSIONKIT.md.)
 struct PluginManagerView: View {
-    @ObservedObject var manager: PluginManager
+    @ObservedObject var model: SuiteModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.radioTheme) private var theme
 
@@ -14,44 +17,53 @@ struct PluginManagerView: View {
         VStack(spacing: 0) {
             header
             Divider()
-            List {
-                ForEach(manager.entries) { entry in
-                    row(entry)
-                }
-                if manager.entries.isEmpty {
-                    Text("No plugins found.").foregroundStyle(.secondary)
-                }
+            TabView {
+                installedTab.tabItem { Label("Installed", systemImage: "checklist") }
+                browseTab.tabItem { Label("Browse", systemImage: "square.and.arrow.down") }
             }
-            .listStyle(.inset)
+            .padding(.top, 4)
         }
-        .frame(width: 560, height: 420)
+        .frame(width: 620, height: 460)
     }
 
     private var header: some View {
         HStack {
             Text("Plugins").font(.title2.weight(.semibold))
-            Toggle("Safe Mode", isOn: Binding(
-                get: { manager.safeMode },
-                set: { manager.safeMode = $0 }
-            ))
-            .toggleStyle(.switch)
-            .help("When on, only built-in (first-party) plugins run — recovery path for a misbehaving plugin.")
+            Toggle("Safe Mode", isOn: Binding(get: { model.manager.safeMode },
+                                              set: { model.manager.safeMode = $0 }))
+                .toggleStyle(.switch)
+                .help("When on, only built-in (first-party) plugins run.")
             Spacer()
-            Button {
-                manager.reload()
-            } label: { Label("Rescan", systemImage: "arrow.clockwise") }
-            Button("Open Folder") {
-                NSWorkspace.shared.open(InstalledPluginSource.defaultDirectory())
-            }
             Button("Done") { dismiss() }.keyboardShortcut(.defaultAction)
         }
         .padding()
     }
 
-    @ViewBuilder private func row(_ entry: PluginEntry) -> some View {
+    // MARK: - Installed
+
+    private var installedTab: some View {
+        List {
+            ForEach(model.manager.entries) { entry in
+                installedRow(entry)
+            }
+            if model.manager.entries.isEmpty {
+                Text("No plugins found.").foregroundStyle(.secondary)
+            }
+        }
+        .listStyle(.inset)
+        .safeAreaInset(edge: .bottom) {
+            HStack {
+                Button { model.manager.reload() } label: { Label("Rescan", systemImage: "arrow.clockwise") }
+                Button("Install from File…") { sideload() }
+                Spacer()
+                Button("Open Folder") { NSWorkspace.shared.open(InstalledPluginSource.defaultDirectory()) }
+            }.padding(8)
+        }
+    }
+
+    @ViewBuilder private func installedRow(_ entry: PluginEntry) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: entry.manifest.systemImage)
-                .font(.title2).frame(width: 28)
+            Image(systemName: entry.manifest.systemImage).font(.title2).frame(width: 28)
                 .foregroundStyle(theme.accent)
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
@@ -60,32 +72,129 @@ struct PluginManagerView: View {
                     sourceTag(entry.sourceKind)
                     statusTag(entry.status)
                 }
-                if !entry.manifest.capabilities.isEmpty {
-                    HStack(spacing: 6) {
-                        ForEach(entry.manifest.capabilities, id: \.self) { cap in
-                            Text(cap.displayName)
-                                .font(.caption2)
-                                .padding(.horizontal, 6).padding(.vertical, 2)
-                                .background(.quaternary, in: Capsule())
-                        }
-                    }
-                }
+                capabilityChips(entry.manifest.capabilities)
             }
             Spacer()
-            Toggle("", isOn: Binding(
-                get: { manager.isEnabled(entry.id) },
-                set: { manager.setEnabled($0, for: entry.id) }
-            ))
-            .labelsHidden()
-            .toggleStyle(.switch)
-            .disabled(isIncompatible(entry))
+            if entry.sourceKind == .installed {
+                Button(role: .destructive) { try? model.uninstall(id: entry.id) } label: {
+                    Image(systemName: "trash")
+                }.buttonStyle(.borderless).help("Uninstall")
+            }
+            Toggle("", isOn: Binding(get: { model.manager.isEnabled(entry.id) },
+                                     set: { model.manager.setEnabled($0, for: entry.id) }))
+                .labelsHidden().toggleStyle(.switch)
+                .disabled(isIncompatible(entry.status))
         }
         .padding(.vertical, 4)
     }
 
-    private func isIncompatible(_ entry: PluginEntry) -> Bool {
-        if case .incompatible = entry.status { return true }
-        return false
+    // MARK: - Browse
+
+    @State private var installing: Set<String> = []
+    @State private var newSource = ""
+
+    private var browseTab: some View {
+        List {
+            Section {
+                ForEach(model.catalog.entries) { entry in
+                    browseRow(entry)
+                }
+                if model.catalog.entries.isEmpty {
+                    Text(model.catalog.lastError ?? "No catalog entries. Add a catalog source below or Refresh.")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
+            }
+            Section("Catalog Sources") {
+                ForEach(model.catalog.sources, id: \.self) { url in
+                    HStack {
+                        Text(url.absoluteString).font(.caption).lineLimit(1).truncationMode(.middle)
+                        Spacer()
+                        Button { model.catalog.removeSource(url); refresh() } label: { Image(systemName: "minus.circle") }
+                            .buttonStyle(.borderless)
+                    }
+                }
+                HStack {
+                    TextField("https://…/catalog.json", text: $newSource)
+                    Button("Add") {
+                        if let u = URL(string: newSource), !newSource.isEmpty {
+                            model.catalog.addSource(u); newSource = ""; refresh()
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.inset)
+        .safeAreaInset(edge: .bottom) {
+            HStack {
+                Button { refresh() } label: { Label("Refresh", systemImage: "arrow.clockwise") }
+                Spacer()
+            }.padding(8)
+        }
+        .task { refresh() }
+    }
+
+    @ViewBuilder private func browseRow(_ entry: CatalogEntry) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: entry.systemImage ?? "puzzlepiece.extension").font(.title2).frame(width: 28)
+                .foregroundStyle(theme.accent)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(entry.name).font(.headline)
+                    Text("v\(entry.latestVersion)").font(.caption).foregroundStyle(.secondary)
+                }
+                if let summary = entry.summary {
+                    Text(summary).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            installButton(entry)
+        }
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder private func installButton(_ entry: CatalogEntry) -> some View {
+        if installing.contains(entry.id) {
+            ProgressView().controlSize(.small)
+        } else {
+            switch entry.installState(installedVersion: model.installedVersion(id: entry.id)) {
+            case .notInstalled:           Button("Install") { doInstall(entry) }.buttonStyle(.borderedProminent)
+            case .updateAvailable:        Button("Update") { doInstall(entry) }.buttonStyle(.bordered)
+            case .upToDate:               Text("Installed").font(.caption).foregroundStyle(.secondary)
+            case .incompatible(let why):  Text(why).font(.caption).foregroundStyle(theme.danger)
+            }
+        }
+    }
+
+    // MARK: - Actions
+
+    private func refresh() { Task { await model.catalog.refresh() } }
+
+    private func doInstall(_ entry: CatalogEntry) {
+        installing.insert(entry.id)
+        Task {
+            defer { installing.remove(entry.id) }
+            do { try await model.install(entry) }
+            catch { model.host.notify(.init(level: .error, title: "Install failed",
+                                             body: error.localizedDescription), from: entry.id) }
+        }
+    }
+
+    private func sideload() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = []
+        panel.allowsOtherFileTypes = true
+        panel.canChooseDirectories = false
+        if panel.runModal() == .OK, let url = panel.url {
+            do { try model.installFromFile(url) }
+            catch { model.host.notify(.init(level: .error, title: "Install failed",
+                                             body: error.localizedDescription), from: "sideload") }
+        }
+    }
+
+    // MARK: - Bits
+
+    private func isIncompatible(_ status: PluginStatus) -> Bool {
+        if case .incompatible = status { return true }; return false
     }
 
     private func sourceTag(_ kind: PluginSourceKind) -> some View {
@@ -97,12 +206,21 @@ struct PluginManagerView: View {
 
     @ViewBuilder private func statusTag(_ status: PluginStatus) -> some View {
         switch status {
-        case .ready:
-            StatusBadge("Ready", kind: .success)
-        case .discovered:
-            StatusBadge("Out-of-process (soon)", kind: .warning)
-        case .incompatible(let reason):
-            StatusBadge(reason, kind: .danger)
+        case .ready:                  StatusBadge("Ready", kind: .success)
+        case .discovered:             StatusBadge("Out-of-process (soon)", kind: .warning)
+        case .incompatible(let r):    StatusBadge(r, kind: .danger)
+        }
+    }
+
+    @ViewBuilder private func capabilityChips(_ caps: [PluginCapability]) -> some View {
+        if !caps.isEmpty {
+            HStack(spacing: 6) {
+                ForEach(caps, id: \.self) { cap in
+                    Text(cap.displayName).font(.caption2)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(.quaternary, in: Capsule())
+                }
+            }
         }
     }
 }

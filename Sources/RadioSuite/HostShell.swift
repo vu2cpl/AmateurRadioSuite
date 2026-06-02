@@ -41,7 +41,7 @@ struct HostShell: View {
                 }
             }
             .sheet(isPresented: $showingManager) {
-                PluginManagerView(manager: manager).radioTheme(theme)
+                PluginManagerView(model: model).radioTheme(theme)
             }
     }
 

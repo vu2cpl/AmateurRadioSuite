@@ -244,8 +244,13 @@ To keep third-party plugins visually coherent, ship a **design system** the SDK 
    app bundle, with `EXHostViewController` hosting (`ExtensionHostView`) and identity discovery
    (`ExtensionDiscovery`) compiling. **Remaining:** Developer-ID signing + runtime extension
    approval, and wiring `ExtensionHostView` into the live tab via discovery. See docs/EXTENSIONKIT.md.
-4. **Browse + install:** catalog index format, signing/notarization verification, the Plugin
-   Browser (Browse/Installed/Updates), custom catalogs, sideload.
+4. 🟢 **DONE (groundwork) — Browse + install:** `PluginCatalog`/`CatalogEntry` index format +
+   `CatalogService` (multi-source, custom catalogs); `PackageInstaller` (`.radioplugin` =
+   checksum-verified zip → validated manifest → installed where discovery finds it);
+   Plugin Browser (Installed/Browse tabs, install/update/uninstall, sideload, sources). A sample
+   catalog + `.radioplugin` ship under `docs/catalog/`. Tested. **Deferred:** code-signature /
+   notarization verification (needed before *running* untrusted plugins — gated on a signing
+   identity); installs are checksum-verified for now and land as `discovered` (out-of-process tier).
 5. **Polish:** design-system rollout + style lint, onboarding, command palette, state restoration,
    safe mode, docs + template + validator CLI.
 

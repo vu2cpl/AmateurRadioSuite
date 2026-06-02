@@ -9,6 +9,7 @@ final class SuiteModel: ObservableObject {
     let host = SuitePluginHost()
     let manager: PluginManager
     let supervisor = PluginSupervisor()
+    let catalog: CatalogService
 
     @Published var selection: String = ""
 
@@ -31,8 +32,47 @@ final class SuiteModel: ObservableObject {
             InstalledPluginSource(directory: InstalledPluginSource.defaultDirectory()),
         ])
         manager.isQuarantined = { supervisor.isQuarantined($0) }   // quarantined → drop from active
+        catalog = CatalogService(defaultSources: [
+            URL(string: "https://raw.githubusercontent.com/VU3ESV/AmateurRadioApps/main/docs/catalog/catalog.json")!
+        ])
         manager.reload()
         selection = manager.activeEntries.first?.id ?? ""
+    }
+
+    // MARK: - Install / uninstall (Phase 4)
+
+    private var pluginsDir: URL { InstalledPluginSource.defaultDirectory() }
+
+    /// Installed version of a plugin id, if present (for catalog update detection).
+    func installedVersion(id: String) -> String? {
+        manager.entries.first { $0.id == id }?.manifest.version
+    }
+
+    /// Download + install a catalog entry, then rescan.
+    func install(_ entry: CatalogEntry) async throws {
+        guard let url = URL(string: entry.url) else { return }
+        let data = try Data(contentsOf: url)
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(entry.id)-\(UUID().uuidString).radioplugin")
+        try data.write(to: tmp)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        try PackageInstaller.install(localPackage: tmp, expectedSHA256: entry.sha256, into: pluginsDir)
+        manager.reload(); reconcile()
+    }
+
+    /// Sideload a local `.radioplugin` (no catalog checksum), then rescan.
+    func installFromFile(_ fileURL: URL) throws {
+        try PackageInstaller.install(localPackage: fileURL, expectedSHA256: nil, into: pluginsDir)
+        manager.reload(); reconcile()
+    }
+
+    func uninstall(id: String) throws {
+        try PackageInstaller.uninstall(id: id, from: pluginsDir)
+        manager.reload(); reconcile()
+    }
+
+    func isInstalledFromDisk(_ id: String) -> Bool {
+        manager.entries.first { $0.id == id }?.sourceKind == .installed
     }
 
     /// Active (enabled + runnable) plugins, as tab/sidebar entries.
