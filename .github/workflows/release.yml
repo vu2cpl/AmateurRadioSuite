@@ -48,6 +48,8 @@ jobs:
           echo "version=${next#v}"    >> "$GITHUB_OUTPUT"
 
       - name: Build universal .app
+        env:
+          APP_VERSION: ${{ steps.ver.outputs.version }}
         run: ./build-app.sh
 
       - name: Package .zip and .dmg
