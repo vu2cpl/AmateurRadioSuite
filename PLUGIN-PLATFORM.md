@@ -238,10 +238,12 @@ To keep third-party plugins visually coherent, ship a **design system** the SDK 
    (tested). *Running* installed plugins is the out-of-process step in phase 3 — discovered installed
    plugins show as "out-of-process (soon)" rather than loading in-process.
 3. 🟡 **IN PROGRESS — Out-of-process tier (ExtensionKit):** extension point + typed Codable
-   channel defined (RadioPluginKit 1.2); `PluginSupervisor` (restart/backoff/quarantine) and
-   host **Safe Mode** implemented + tested; docs + extension template shipped. **Remaining:** the
-   `EXHostViewController` hosting + a sample `.appex` — these need an **Xcode app-extension
-   target** (SwiftPM can't build `.appex`). See docs/EXTENSIONKIT.md.
+   channel (RadioPluginKit 1.2); `PluginSupervisor` (restart/backoff/quarantine) + host **Safe
+   Mode** (tested). An **Xcode workspace** (`Xcode/`, XcodeGen-authored, committed) now builds the
+   host app + a sample out-of-process `DemoSDRExtension.appex` (ExtensionKit), embedded into the
+   app bundle, with `EXHostViewController` hosting (`ExtensionHostView`) and identity discovery
+   (`ExtensionDiscovery`) compiling. **Remaining:** Developer-ID signing + runtime extension
+   approval, and wiring `ExtensionHostView` into the live tab via discovery. See docs/EXTENSIONKIT.md.
 4. **Browse + install:** catalog index format, signing/notarization verification, the Plugin
    Browser (Browse/Installed/Updates), custom catalogs, sideload.
 5. **Polish:** design-system rollout + style lint, onboarding, command palette, state restoration,

@@ -3,12 +3,15 @@
 DerivedData/
 Package.resolved
 .DS_Store
-*.xcodeproj/
 dist/
 *.app/
 *.dmg
 xcuserdata/
-*.xcworkspace
 
 # Editor
 .vscode/
+
+# Xcode
+Xcode/.build-xcode/
+**/xcuserdata/
+DerivedData/

@@ -37,13 +37,31 @@ an **Xcode** project with:
 - a host **app** target (the suite) with the *Extension Host* capability, and
 - one or more **app-extension** targets whose `Info.plist` declares the extension point.
 
-The contract and the host-side crash-control logic already live in this SwiftPM repo
-(`RadioPluginKit` 1.2 + `PluginSupervisor`); the remaining `EXHostViewController` hosting and
-the sample `.appex` land once the build gains an Xcode extension target. Two paths:
+This is done: the [`Xcode/`](../Xcode/) workspace provides the host app + a sample
+`DemoSDRExtension.appex` target.
 
-1. **Add an Xcode workspace** alongside the package (app + extension targets) — keeps the
-   SwiftPM packages as libraries the Xcode targets consume.
-2. **Generate it** (e.g. XcodeGen/Tuist) so the project file stays declarative.
+### Building the Xcode workspace
+
+```sh
+cd Xcode
+xcodegen generate        # only if you changed project.yml; the .xcodeproj is committed
+open RadioSuite.xcodeproj
+# or headless:
+xcodebuild -project RadioSuite.xcodeproj -scheme RadioSuiteHost \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO build
+```
+
+- `RadioSuiteHost` (app) reuses the package's `Sources/RadioSuite` verbatim and links the
+  SwiftPM plugin packages; it adds `Host/ExtensionHostView.swift` (`EXHostViewController`
+  hosting + `ExtensionDiscovery`).
+- `DemoSDRExtension` (`.appex`, `type: extensionkit-extension`) is the sample out-of-process
+  plugin; the app embeds it under `Contents/Extensions/`.
+- The project is **XcodeGen-authored** (`Xcode/project.yml`) but the generated `.xcodeproj` is
+  committed — open and edit it in Xcode directly; XcodeGen is only needed to regenerate.
+
+**Remaining for a running demo:** Developer-ID signing + the runtime extension approval flow,
+and wiring `ExtensionHostView` into a live tab (driven by `ExtensionDiscovery`). The current
+project builds and embeds the extension with ad-hoc signing.
 
 ## Extension `Info.plist` (required keys)
 

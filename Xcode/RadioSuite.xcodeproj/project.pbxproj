@@ -1,0 +1,583 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1760CB6D7C130875B2E0FAEE /* DemoSDRExtension.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		215D030F7D2631F3DB9E94B6 /* SuiteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */; };
+		217E5703496AD77D1A2E36EF /* RadioPluginUI in Frameworks */ = {isa = PBXBuildFile; productRef = FECEE0C0B776BAFE2440BAE9 /* RadioPluginUI */; };
+		3042444C9E3BF3940772BE78 /* ExtensionHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */; };
+		339611B598FDAF7961E38E2D /* LP100AApp in Frameworks */ = {isa = PBXBuildFile; productRef = 3405A44E6F251E6DD2F9B3DD /* LP100AApp */; };
+		37DE3A23495CC608FD9D7EAB /* PluginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */; };
+		574E0F60F9C39812D9A2243B /* RadioSuiteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21248B48676433F9598C502 /* RadioSuiteApp.swift */; };
+		58E0E60015A44E72FD5352EF /* RadioPluginUI in Frameworks */ = {isa = PBXBuildFile; productRef = F262B734CC878C6F7EFFB8F9 /* RadioPluginUI */; };
+		5A4C30AC029B1D1C7A9025EA /* RadioPluginKit in Frameworks */ = {isa = PBXBuildFile; productRef = C16CA7B3EA68D83E92F682CF /* RadioPluginKit */; };
+		5FE21F53874F886E37AC5A78 /* PluginRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */; };
+		63B06483059F5F76A3A7620B /* PluginManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BD8531C4A3CD81719350CC /* PluginManagerView.swift */; };
+		69E3CAF9A869FFA1A4BD83CB /* HostShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E73C5E692441FB7A6FCFE0B /* HostShell.swift */; };
+		87D7D1990D34ADCDFD11736E /* DemoSDRExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3A3438E62FE938E2D34CC1 /* DemoSDRExtension.swift */; };
+		B844E6181C4B3F07CBC65391 /* PluginSupervisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A194538721770EA5A3348E0 /* PluginSupervisor.swift */; };
+		B89E2CA9ECD6DE53ABED6BD3 /* RadioPluginKit in Frameworks */ = {isa = PBXBuildFile; productRef = B3B40E817E484ED5C85CCAA1 /* RadioPluginKit */; };
+		E23E2F5E0BA130D0B61A57A9 /* LP700App in Frameworks */ = {isa = PBXBuildFile; productRef = 8F4F0B9D23DA8445247E8C72 /* LP700App */; };
+		F4676FD919C199C8BE518EF2 /* BandPassFilterControllerKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		42A0BF10246751B436F565CB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41B926B4AB9DA8DACFC10EF0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D51DB99C001E210B3EDB0C20;
+			remoteInfo = DemoSDRExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9441D8AE9BA2F8D126387266 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				1760CB6D7C130875B2E0FAEE /* DemoSDRExtension.appex in Embed ExtensionKit Extensions */,
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1E73C5E692441FB7A6FCFE0B /* HostShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostShell.swift; sourceTree = "<group>"; };
+		2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManager.swift; sourceTree = "<group>"; };
+		28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = DemoSDRExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		33EF2BFC62752B86EC07D270 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		58D46EF63ABB780CA4F146BF /* BandPassFilterControllerApp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BandPassFilterControllerApp; path = ../../BandPassFilterControllerApp; sourceTree = SOURCE_ROOT; };
+		5A194538721770EA5A3348E0 /* PluginSupervisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginSupervisor.swift; sourceTree = "<group>"; };
+		6581BF78B83F689D34B61A75 /* LP-100A-App */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "LP-100A-App"; path = "../../LP-100A-App"; sourceTree = SOURCE_ROOT; };
+		6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiteModel.swift; sourceTree = "<group>"; };
+		79BD8531C4A3CD81719350CC /* PluginManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManagerView.swift; sourceTree = "<group>"; };
+		9B3A3438E62FE938E2D34CC1 /* DemoSDRExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoSDRExtension.swift; sourceTree = "<group>"; };
+		C2452941CDC87F9E0429677D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D21248B48676433F9598C502 /* RadioSuiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioSuiteApp.swift; sourceTree = "<group>"; };
+		DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginRegistry.swift; sourceTree = "<group>"; };
+		E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionHostView.swift; sourceTree = "<group>"; };
+		E9F10840E3CAD10849B9C0E6 /* RadioSuiteHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioSuiteHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2EF2EB9D16C438043AC0712 /* LP-700-App */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "LP-700-App"; path = "../../LP-700-App"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01D7ECE3DFE31187DAF8D959 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A4C30AC029B1D1C7A9025EA /* RadioPluginKit in Frameworks */,
+				217E5703496AD77D1A2E36EF /* RadioPluginUI in Frameworks */,
+				E23E2F5E0BA130D0B61A57A9 /* LP700App in Frameworks */,
+				339611B598FDAF7961E38E2D /* LP100AApp in Frameworks */,
+				F4676FD919C199C8BE518EF2 /* BandPassFilterControllerKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABF7A6A297942374F99E6BFD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B89E2CA9ECD6DE53ABED6BD3 /* RadioPluginKit in Frameworks */,
+				58E0E60015A44E72FD5352EF /* RadioPluginUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1DCEE635C50BAA9EB62059FE = {
+			isa = PBXGroup;
+			children = (
+				E319DE34463AC9246A3DF2FF /* AmateurRadioApps */,
+				E83D5F1C48F92475A7B4AC12 /* Extension */,
+				E88672795789A77EB897A1B3 /* Host */,
+				628B01836AD8149BB6AD88A3 /* Packages */,
+				2C37C961B4A71B28F4796713 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2C37C961B4A71B28F4796713 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */,
+				E9F10840E3CAD10849B9C0E6 /* RadioSuiteHost.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3FA8E1FCCEAE3F503FACF8E6 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				5B3E799364EC0917B278F027 /* RadioSuite */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		5B3E799364EC0917B278F027 /* RadioSuite */ = {
+			isa = PBXGroup;
+			children = (
+				1E73C5E692441FB7A6FCFE0B /* HostShell.swift */,
+				2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */,
+				79BD8531C4A3CD81719350CC /* PluginManagerView.swift */,
+				DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */,
+				5A194538721770EA5A3348E0 /* PluginSupervisor.swift */,
+				D21248B48676433F9598C502 /* RadioSuiteApp.swift */,
+				6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */,
+			);
+			path = RadioSuite;
+			sourceTree = "<group>";
+		};
+		628B01836AD8149BB6AD88A3 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				58D46EF63ABB780CA4F146BF /* BandPassFilterControllerApp */,
+				6581BF78B83F689D34B61A75 /* LP-100A-App */,
+				F2EF2EB9D16C438043AC0712 /* LP-700-App */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		E319DE34463AC9246A3DF2FF /* AmateurRadioApps */ = {
+			isa = PBXGroup;
+			children = (
+				3FA8E1FCCEAE3F503FACF8E6 /* Sources */,
+			);
+			name = AmateurRadioApps;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		E83D5F1C48F92475A7B4AC12 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				9B3A3438E62FE938E2D34CC1 /* DemoSDRExtension.swift */,
+				33EF2BFC62752B86EC07D270 /* Info.plist */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		E88672795789A77EB897A1B3 /* Host */ = {
+			isa = PBXGroup;
+			children = (
+				E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */,
+				C2452941CDC87F9E0429677D /* Info.plist */,
+			);
+			path = Host;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D51DB99C001E210B3EDB0C20 /* DemoSDRExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79C991993DFB9D00D042D910 /* Build configuration list for PBXNativeTarget "DemoSDRExtension" */;
+			buildPhases = (
+				932CAD9DE197E2B34F255388 /* Sources */,
+				ABF7A6A297942374F99E6BFD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DemoSDRExtension;
+			packageProductDependencies = (
+				B3B40E817E484ED5C85CCAA1 /* RadioPluginKit */,
+				F262B734CC878C6F7EFFB8F9 /* RadioPluginUI */,
+			);
+			productName = DemoSDRExtension;
+			productReference = 28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */;
+			productType = "com.apple.product-type.extensionkit-extension";
+		};
+		E387B60B1700A9020B4BDC9E /* RadioSuiteHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B7E10A00A4F30C43A511474D /* Build configuration list for PBXNativeTarget "RadioSuiteHost" */;
+			buildPhases = (
+				BB02D9D25640F5414E56F420 /* Sources */,
+				01D7ECE3DFE31187DAF8D959 /* Frameworks */,
+				9441D8AE9BA2F8D126387266 /* Embed ExtensionKit Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F040143C981106A9338E2E72 /* PBXTargetDependency */,
+			);
+			name = RadioSuiteHost;
+			packageProductDependencies = (
+				C16CA7B3EA68D83E92F682CF /* RadioPluginKit */,
+				FECEE0C0B776BAFE2440BAE9 /* RadioPluginUI */,
+				8F4F0B9D23DA8445247E8C72 /* LP700App */,
+				3405A44E6F251E6DD2F9B3DD /* LP100AApp */,
+				A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */,
+			);
+			productName = RadioSuiteHost;
+			productReference = E9F10840E3CAD10849B9C0E6 /* RadioSuiteHost.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		41B926B4AB9DA8DACFC10EF0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					D51DB99C001E210B3EDB0C20 = {
+						ProvisioningStyle = Manual;
+					};
+					E387B60B1700A9020B4BDC9E = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = 4F954DA38170061B97AA3238 /* Build configuration list for PBXProject "RadioSuite" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1DCEE635C50BAA9EB62059FE;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */,
+				7AD538F4A44492B7A1776974 /* XCLocalSwiftPackageReference "../../BandPassFilterControllerApp" */,
+				86E214B221D4025EDDF1B67F /* XCLocalSwiftPackageReference "../../LP-100A-App" */,
+				2D760CD74FAE45F58799DA20 /* XCLocalSwiftPackageReference "../../LP-700-App" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2C37C961B4A71B28F4796713 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D51DB99C001E210B3EDB0C20 /* DemoSDRExtension */,
+				E387B60B1700A9020B4BDC9E /* RadioSuiteHost */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		932CAD9DE197E2B34F255388 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87D7D1990D34ADCDFD11736E /* DemoSDRExtension.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BB02D9D25640F5414E56F420 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3042444C9E3BF3940772BE78 /* ExtensionHostView.swift in Sources */,
+				69E3CAF9A869FFA1A4BD83CB /* HostShell.swift in Sources */,
+				37DE3A23495CC608FD9D7EAB /* PluginManager.swift in Sources */,
+				63B06483059F5F76A3A7620B /* PluginManagerView.swift in Sources */,
+				5FE21F53874F886E37AC5A78 /* PluginRegistry.swift in Sources */,
+				B844E6181C4B3F07CBC65391 /* PluginSupervisor.swift in Sources */,
+				574E0F60F9C39812D9A2243B /* RadioSuiteApp.swift in Sources */,
+				215D030F7D2631F3DB9E94B6 /* SuiteModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F040143C981106A9338E2E72 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D51DB99C001E210B3EDB0C20 /* DemoSDRExtension */;
+			targetProxy = 42A0BF10246751B436F565CB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		185C3636814D73F9A4CC8CD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		951490729C0F67C6CA90F72F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B40D5F451622E6DC82D8EE78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Extension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.vu3esv.radiosuite.DemoSDR;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		BE84F3127B955A7ABBAAFB6C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Host/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.vu3esv.radiosuite;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E3FEBDC03274CF2F9625F1EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Host/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.vu3esv.radiosuite;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E897244A9CA5CF93A113618F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Extension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.vu3esv.radiosuite.DemoSDR;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4F954DA38170061B97AA3238 /* Build configuration list for PBXProject "RadioSuite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				185C3636814D73F9A4CC8CD6 /* Debug */,
+				951490729C0F67C6CA90F72F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		79C991993DFB9D00D042D910 /* Build configuration list for PBXNativeTarget "DemoSDRExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E897244A9CA5CF93A113618F /* Debug */,
+				B40D5F451622E6DC82D8EE78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B7E10A00A4F30C43A511474D /* Build configuration list for PBXNativeTarget "RadioSuiteHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3FEBDC03274CF2F9625F1EC /* Debug */,
+				BE84F3127B955A7ABBAAFB6C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2D760CD74FAE45F58799DA20 /* XCLocalSwiftPackageReference "../../LP-700-App" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../LP-700-App";
+		};
+		7AD538F4A44492B7A1776974 /* XCLocalSwiftPackageReference "../../BandPassFilterControllerApp" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../BandPassFilterControllerApp;
+		};
+		86E214B221D4025EDDF1B67F /* XCLocalSwiftPackageReference "../../LP-100A-App" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../LP-100A-App";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/VU3ESV/RadioPluginKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3405A44E6F251E6DD2F9B3DD /* LP100AApp */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LP100AApp;
+		};
+		8F4F0B9D23DA8445247E8C72 /* LP700App */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LP700App;
+		};
+		A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BandPassFilterControllerKit;
+		};
+		B3B40E817E484ED5C85CCAA1 /* RadioPluginKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */;
+			productName = RadioPluginKit;
+		};
+		C16CA7B3EA68D83E92F682CF /* RadioPluginKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */;
+			productName = RadioPluginKit;
+		};
+		F262B734CC878C6F7EFFB8F9 /* RadioPluginUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */;
+			productName = RadioPluginUI;
+		};
+		FECEE0C0B776BAFE2440BAE9 /* RadioPluginUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */;
+			productName = RadioPluginUI;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 41B926B4AB9DA8DACFC10EF0 /* Project object */;
+}

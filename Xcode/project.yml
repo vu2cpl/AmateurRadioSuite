@@ -1,0 +1,82 @@
+# XcodeGen spec for the Amateur Radio Suite Xcode workspace.
+#
+# Authoring tool only — the generated RadioSuite.xcodeproj / .xcworkspace are committed
+# and openable directly in Xcode. Regenerate with:  (cd Xcode && xcodegen generate)
+#
+# This Xcode build exists for the out-of-process (ExtensionKit) tier, which SwiftPM can't
+# produce. The plain `swift build` in the repo root still builds the in-process suite.
+
+name: RadioSuite
+options:
+  bundleIdPrefix: org.vu3esv
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  RadioPluginKit:
+    url: https://github.com/VU3ESV/RadioPluginKit.git
+    from: "1.2.0"
+  LP700App:
+    path: ../../LP-700-App
+  LP100AApp:
+    path: ../../LP-100A-App
+  BandPassFilterControllerApp:
+    path: ../../BandPassFilterControllerApp
+
+targets:
+  RadioSuiteHost:
+    type: application
+    platform: macOS
+    sources:
+      - path: ../Sources/RadioSuite      # reuse the in-process suite sources verbatim
+      - path: Host                       # + ExtensionKit hosting added here
+    info:
+      path: Host/Info.plist
+      properties:
+        CFBundleName: Amateur Radio Suite
+        CFBundleDisplayName: Amateur Radio Suite
+        LSMinimumSystemVersion: "14.0"
+        NSHighResolutionCapable: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.vu3esv.radiosuite
+        MARKETING_VERSION: "1.0"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"          # ad-hoc for local dev
+    dependencies:
+      - package: RadioPluginKit
+        product: RadioPluginKit
+      - package: RadioPluginKit
+        product: RadioPluginUI
+      - package: LP700App
+        product: LP700App
+      - package: LP100AApp
+        product: LP100AApp
+      - package: BandPassFilterControllerApp
+        product: BandPassFilterControllerKit
+      - target: DemoSDRExtension
+        embed: true
+
+  DemoSDRExtension:
+    type: extensionkit-extension
+    platform: macOS
+    sources:
+      - path: Extension
+    info:
+      path: Extension/Info.plist
+      properties:
+        CFBundleName: Demo SDR
+        CFBundleDisplayName: Demo SDR
+        EXAppExtensionAttributes:
+          EXExtensionPointIdentifier: org.vu3esv.radiosuite.plugin
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.vu3esv.radiosuite.DemoSDR
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+    dependencies:
+      - package: RadioPluginKit
+        product: RadioPluginKit
+      - package: RadioPluginKit
+        product: RadioPluginUI
