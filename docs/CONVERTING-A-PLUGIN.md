@@ -233,6 +233,9 @@ Key details the script handles (and why):
   payload-root detection in `PackageInstaller`).
 - **Pure-ASCII script** — a multibyte char right after a `$VAR` is absorbed into the name
   under a C locale (`PKG…: unbound variable`). Keep echoes ASCII.
+- **Never `rm -rf dist/`** — only `mkdir -p dist` + remove its own `*.radioplugin`. In a
+  release pipeline `dist/` also holds the `.app`/`.dmg` built just before; wiping it deletes
+  them and fails the release.
 
 ---
 
@@ -281,7 +284,11 @@ caught immediately:
 ```yaml
       - name: Build plugin package (.appex / .radioplugin)
         run: |
-          brew install xcodegen        # not preinstalled on the runner
+          # The runner's DEFAULT Xcode may be too old to read XcodeGen's project format
+          # (objectVersion 77) — select the newest installed Xcode first, or the build
+          # fails with "future Xcode project file format".
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen   # not preinstalled
           ./scripts/make-radioplugin.sh
 ```
 
@@ -292,24 +299,28 @@ to the uploaded files. With `softprops/action-gh-release` (what the apps use), a
 step and one line to `files:`:
 
 ```yaml
+      # Run AFTER the .app/.dmg build. make-radioplugin.sh must NOT wipe dist/ (see §5),
+      # or it deletes the .dmg built moments earlier and the release fails.
       - name: Build plugin package
         run: |
-          brew install xcodegen
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
           ./scripts/make-radioplugin.sh        # -> dist/<pkg>
+          cp dist/<pkg> "dist/<Repo>-${VERSION}.radioplugin"   # versioned name to attach
 
       - name: Create GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          # ...existing config...
+          # ...existing config (still builds + attaches the .dmg, unchanged)...
           files: |
             dist/<Repo>-*.dmg
             dist/<Repo>-*.dmg.sha256
-            dist/<pkg>                          # <-- the .radioplugin
+            dist/<Repo>-*.radioplugin           # <-- the plugin, ADDITIONAL to the .dmg
 ```
 
-Now every tagged release publishes the standalone `.dmg` **and** the `<pkg>` plugin — one
-repo, one pipeline, both forms.
+Now every release publishes the standalone `.dmg` **and** the `.radioplugin` — one repo,
+one pipeline, both forms. The `.radioplugin` is strictly **additional**; the app's existing
+`.dmg` build and release are untouched.
 
 ### 7c. Keep the catalog in sync (choose one)
 
