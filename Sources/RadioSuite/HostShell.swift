@@ -1,11 +1,16 @@
 import SwiftUI
 import RadioPluginKit
+import RadioPluginUI
 
 /// The container window: hosts plugins either as a vertical sidebar or as
 /// horizontal tabs, switchable from the View menu (⌘⌥S).
 struct HostShell: View {
     @ObservedObject var model: SuiteModel
+    @ObservedObject var events: SuiteEvents
     @AppStorage("suite.layout") private var layout = Layout.sidebar
+
+    /// Design-system theme injected into every plugin's view tree.
+    private let theme = RadioTheme.dark
 
     enum Layout: String { case sidebar, tabs }
 
@@ -36,13 +41,17 @@ struct HostShell: View {
         NavigationSplitView {
             List(selection: sidebarSelection) {
                 ForEach(model.entries) { e in
-                    Label(e.title, systemImage: e.systemImage)
-                        .tag(e.id)
+                    HStack {
+                        Label(e.title, systemImage: e.systemImage)
+                        Spacer()
+                        badge(for: e.id)
+                    }
+                    .tag(e.id)
                 }
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 200)
         } detail: {
-            model.view(for: model.selection)
+            pane(for: model.selection)
                 .frame(minWidth: 600, minHeight: 480)
         }
     }
@@ -50,10 +59,34 @@ struct HostShell: View {
     private var tabs: some View {
         TabView(selection: tabSelection) {
             ForEach(model.entries) { e in
-                model.view(for: e.id)
+                pane(for: e.id)
                     .tabItem { Label(e.title, systemImage: e.systemImage) }
                     .tag(e.id)
             }
+        }
+    }
+
+    /// A plugin's pane: an optional host-rendered error/notification banner above
+    /// the plugin view, with the design-system theme injected into the subtree.
+    @ViewBuilder private func pane(for id: String) -> some View {
+        VStack(spacing: 0) {
+            if let note = events.banner[id] {
+                Banner(level: note.level, title: note.title, message: note.body)
+                    .padding([.horizontal, .top], 12)
+            }
+            model.view(for: id)
+        }
+        .radioTheme(theme)
+    }
+
+    @ViewBuilder private func badge(for id: String) -> some View {
+        switch events.badges[id] {
+        case .dot:            Circle().fill(theme.danger).frame(width: 8, height: 8)
+        case .count(let n):   Text("\(n)").font(.caption2).padding(.horizontal, 6)
+                                  .background(theme.danger, in: Capsule()).foregroundStyle(.white)
+        case .text(let t):    Text(t).font(.caption2).padding(.horizontal, 6)
+                                  .background(theme.accent, in: Capsule()).foregroundStyle(.white)
+        case .none:           EmptyView()
         }
     }
 

@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AmateurRadioApps}",
+            "name": "Debug RadioSuite",
+            "target": "RadioSuite",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug RadioSuite"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AmateurRadioApps}",
+            "name": "Release RadioSuite",
+            "target": "RadioSuite",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release RadioSuite"
+        }
+    ]
+}

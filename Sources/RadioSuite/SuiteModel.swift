@@ -64,6 +64,7 @@ final class SuiteModel: ObservableObject {
         guard let p = plugin(for: id) else { return }
         // Ensure the view (and its view model) exists before activating.
         _ = view(for: id)
+        host.clearAttention(for: id)   // selecting a tab clears its badge/banner
         p.activate()
         activated.insert(id)
     }

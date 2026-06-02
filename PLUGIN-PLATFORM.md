@@ -244,9 +244,10 @@ To keep third-party plugins visually coherent, ship a **design system** the SDK 
 
 ---
 
-## 12. Key decisions to confirm before building
-- **Isolation for the third-party tier:** ExtensionKit `.appex` (recommended — system-supported,
-  sandboxed, crash-isolated) vs a custom XPC child-process host (more control, more work).
+## 12. Key decisions
+- **Isolation for the third-party tier:** ✅ **DECIDED — ExtensionKit `.appex`** (system-supported,
+  sandboxed, crash-isolated; UI hosted via `EXHostViewController`). The SDK value types that cross
+  the process boundary (manifest, capabilities, notifications) are therefore `Codable` + `Sendable`.
 - **Catalog hosting:** a GitHub-hosted static JSON index (simplest) vs a small service (ratings,
   telemetry, search).
 - **In-process tier:** keep it (fast, first-party) or go *all* out-of-process for uniformity at a

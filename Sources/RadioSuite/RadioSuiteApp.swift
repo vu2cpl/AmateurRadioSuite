@@ -7,7 +7,7 @@ struct RadioSuiteApp: App {
 
     var body: some Scene {
         WindowGroup("Amateur Radio Suite") {
-            HostShell(model: model)
+            HostShell(model: model, events: model.host.events)
                 .frame(minWidth: 900, minHeight: 600)
         }
         .commands {
