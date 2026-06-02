@@ -7,23 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03995529A8F54F16657D8C2E /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02269DBE4F05D20E8581044 /* OnboardingView.swift */; };
+		0B5CC7AECC187631F1E96D0F /* SettingsHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E4424695AFC01508FBC4267 /* SettingsHubView.swift */; };
 		1760CB6D7C130875B2E0FAEE /* DemoSDRExtension.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = 28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		215D030F7D2631F3DB9E94B6 /* SuiteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */; };
+		192F32DDFAD80904174BE6D6 /* PluginCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0E8DCA3060E8A05B5EC765 /* PluginCatalog.swift */; };
 		217E5703496AD77D1A2E36EF /* RadioPluginUI in Frameworks */ = {isa = PBXBuildFile; productRef = FECEE0C0B776BAFE2440BAE9 /* RadioPluginUI */; };
 		3042444C9E3BF3940772BE78 /* ExtensionHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */; };
-		339611B598FDAF7961E38E2D /* LP100AApp in Frameworks */ = {isa = PBXBuildFile; productRef = 3405A44E6F251E6DD2F9B3DD /* LP100AApp */; };
-		37DE3A23495CC608FD9D7EAB /* PluginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */; };
-		574E0F60F9C39812D9A2243B /* RadioSuiteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21248B48676433F9598C502 /* RadioSuiteApp.swift */; };
+		3D80097240E3BA2AC7284489 /* PluginSupervisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D8EBDCEA944F2C70752BFF /* PluginSupervisor.swift */; };
+		3F11B00294D545F4D106FD4C /* SuiteScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E5AEE14ADE36CAB1282C9C /* SuiteScene.swift */; };
+		4485FE351B1D328A57937DEB /* OutOfProcessHosting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E3A5F9400C887779C12D5A /* OutOfProcessHosting.swift */; };
+		4A7AECB48939343A8951D004 /* SuiteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FEFD8CE1FC53D7B27BA02A4 /* SuiteModel.swift */; };
+		509E631E284F8E8916095A59 /* HostApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED629199B8D9B5D48E3D189 /* HostApp.swift */; };
+		5118C193BF063441998EA784 /* PackageInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4FB5CEF632018BD6B5AE035 /* PackageInstaller.swift */; };
 		58E0E60015A44E72FD5352EF /* RadioPluginUI in Frameworks */ = {isa = PBXBuildFile; productRef = F262B734CC878C6F7EFFB8F9 /* RadioPluginUI */; };
 		5A4C30AC029B1D1C7A9025EA /* RadioPluginKit in Frameworks */ = {isa = PBXBuildFile; productRef = C16CA7B3EA68D83E92F682CF /* RadioPluginKit */; };
-		5FE21F53874F886E37AC5A78 /* PluginRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */; };
-		63B06483059F5F76A3A7620B /* PluginManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79BD8531C4A3CD81719350CC /* PluginManagerView.swift */; };
-		69E3CAF9A869FFA1A4BD83CB /* HostShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E73C5E692441FB7A6FCFE0B /* HostShell.swift */; };
+		5E0D34B2632062153D6E9535 /* PluginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26078FA8E9903DE2CCF7DB9C /* PluginManager.swift */; };
+		6852E523DE3F11872B7291E6 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26980339DE8FA299741C6E1 /* CommandPaletteView.swift */; };
+		73239013B7D83AF81C3069BD /* PluginRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3775334C66936B420097857C /* PluginRegistry.swift */; };
 		87D7D1990D34ADCDFD11736E /* DemoSDRExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B3A3438E62FE938E2D34CC1 /* DemoSDRExtension.swift */; };
-		B844E6181C4B3F07CBC65391 /* PluginSupervisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A194538721770EA5A3348E0 /* PluginSupervisor.swift */; };
+		90A6BF9CEDDB7001466B5B83 /* HostShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41D3CCA099D32A9AA4837733 /* HostShell.swift */; };
+		A3AF07C593761F8B2D01AF14 /* ExtensionHosting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD5E9D2A73C3BF849A593EA /* ExtensionHosting.swift */; };
 		B89E2CA9ECD6DE53ABED6BD3 /* RadioPluginKit in Frameworks */ = {isa = PBXBuildFile; productRef = B3B40E817E484ED5C85CCAA1 /* RadioPluginKit */; };
-		E23E2F5E0BA130D0B61A57A9 /* LP700App in Frameworks */ = {isa = PBXBuildFile; productRef = 8F4F0B9D23DA8445247E8C72 /* LP700App */; };
-		F4676FD919C199C8BE518EF2 /* BandPassFilterControllerKit in Frameworks */ = {isa = PBXBuildFile; productRef = A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */; };
+		CCFB56E46A25E1CF2A625096 /* CatalogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F3D8944063AA860B127285 /* CatalogService.swift */; };
+		E078CED102D2B53A3432DC30 /* PluginManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F343030F223B791F7D998FE6 /* PluginManagerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,22 +57,28 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1E73C5E692441FB7A6FCFE0B /* HostShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostShell.swift; sourceTree = "<group>"; };
-		2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManager.swift; sourceTree = "<group>"; };
+		02E3A5F9400C887779C12D5A /* OutOfProcessHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfProcessHosting.swift; sourceTree = "<group>"; };
+		0A0E8DCA3060E8A05B5EC765 /* PluginCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginCatalog.swift; sourceTree = "<group>"; };
+		0FEFD8CE1FC53D7B27BA02A4 /* SuiteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiteModel.swift; sourceTree = "<group>"; };
+		26078FA8E9903DE2CCF7DB9C /* PluginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManager.swift; sourceTree = "<group>"; };
 		28CD5CAE6674C43C7CA3471C /* DemoSDRExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = DemoSDRExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E4424695AFC01508FBC4267 /* SettingsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHubView.swift; sourceTree = "<group>"; };
 		33EF2BFC62752B86EC07D270 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		58D46EF63ABB780CA4F146BF /* BandPassFilterControllerApp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BandPassFilterControllerApp; path = ../../BandPassFilterControllerApp; sourceTree = SOURCE_ROOT; };
-		5A194538721770EA5A3348E0 /* PluginSupervisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginSupervisor.swift; sourceTree = "<group>"; };
-		6581BF78B83F689D34B61A75 /* LP-100A-App */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "LP-100A-App"; path = "../../LP-100A-App"; sourceTree = SOURCE_ROOT; };
-		6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiteModel.swift; sourceTree = "<group>"; };
-		79BD8531C4A3CD81719350CC /* PluginManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManagerView.swift; sourceTree = "<group>"; };
+		3775334C66936B420097857C /* PluginRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginRegistry.swift; sourceTree = "<group>"; };
+		3FD5E9D2A73C3BF849A593EA /* ExtensionHosting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionHosting.swift; sourceTree = "<group>"; };
+		41D3CCA099D32A9AA4837733 /* HostShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostShell.swift; sourceTree = "<group>"; };
+		96E5AEE14ADE36CAB1282C9C /* SuiteScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuiteScene.swift; sourceTree = "<group>"; };
 		9B3A3438E62FE938E2D34CC1 /* DemoSDRExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoSDRExtension.swift; sourceTree = "<group>"; };
+		9ED629199B8D9B5D48E3D189 /* HostApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostApp.swift; sourceTree = "<group>"; };
+		A0F3D8944063AA860B127285 /* CatalogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogService.swift; sourceTree = "<group>"; };
+		A6D8EBDCEA944F2C70752BFF /* PluginSupervisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginSupervisor.swift; sourceTree = "<group>"; };
 		C2452941CDC87F9E0429677D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		D21248B48676433F9598C502 /* RadioSuiteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioSuiteApp.swift; sourceTree = "<group>"; };
-		DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginRegistry.swift; sourceTree = "<group>"; };
+		D4FB5CEF632018BD6B5AE035 /* PackageInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageInstaller.swift; sourceTree = "<group>"; };
+		E02269DBE4F05D20E8581044 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionHostView.swift; sourceTree = "<group>"; };
+		E26980339DE8FA299741C6E1 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
 		E9F10840E3CAD10849B9C0E6 /* RadioSuiteHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioSuiteHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F2EF2EB9D16C438043AC0712 /* LP-700-App */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "LP-700-App"; path = "../../LP-700-App"; sourceTree = SOURCE_ROOT; };
+		F343030F223B791F7D998FE6 /* PluginManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManagerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,9 +88,6 @@
 			files = (
 				5A4C30AC029B1D1C7A9025EA /* RadioPluginKit in Frameworks */,
 				217E5703496AD77D1A2E36EF /* RadioPluginUI in Frameworks */,
-				E23E2F5E0BA130D0B61A57A9 /* LP700App in Frameworks */,
-				339611B598FDAF7961E38E2D /* LP100AApp in Frameworks */,
-				F4676FD919C199C8BE518EF2 /* BandPassFilterControllerKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,12 +106,32 @@
 		1DCEE635C50BAA9EB62059FE = {
 			isa = PBXGroup;
 			children = (
-				E319DE34463AC9246A3DF2FF /* AmateurRadioApps */,
+				9CFFDC030D398D5757F9E01B /* AmateurRadioSuite */,
 				E83D5F1C48F92475A7B4AC12 /* Extension */,
 				E88672795789A77EB897A1B3 /* Host */,
-				628B01836AD8149BB6AD88A3 /* Packages */,
 				2C37C961B4A71B28F4796713 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		200A28FADC1468FD419D5AE1 /* RadioSuite */ = {
+			isa = PBXGroup;
+			children = (
+				A0F3D8944063AA860B127285 /* CatalogService.swift */,
+				E26980339DE8FA299741C6E1 /* CommandPaletteView.swift */,
+				41D3CCA099D32A9AA4837733 /* HostShell.swift */,
+				E02269DBE4F05D20E8581044 /* OnboardingView.swift */,
+				02E3A5F9400C887779C12D5A /* OutOfProcessHosting.swift */,
+				D4FB5CEF632018BD6B5AE035 /* PackageInstaller.swift */,
+				0A0E8DCA3060E8A05B5EC765 /* PluginCatalog.swift */,
+				26078FA8E9903DE2CCF7DB9C /* PluginManager.swift */,
+				F343030F223B791F7D998FE6 /* PluginManagerView.swift */,
+				3775334C66936B420097857C /* PluginRegistry.swift */,
+				A6D8EBDCEA944F2C70752BFF /* PluginSupervisor.swift */,
+				2E4424695AFC01508FBC4267 /* SettingsHubView.swift */,
+				0FEFD8CE1FC53D7B27BA02A4 /* SuiteModel.swift */,
+				96E5AEE14ADE36CAB1282C9C /* SuiteScene.swift */,
+			);
+			path = RadioSuite;
 			sourceTree = "<group>";
 		};
 		2C37C961B4A71B28F4796713 /* Products */ = {
@@ -114,45 +143,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3FA8E1FCCEAE3F503FACF8E6 /* Sources */ = {
+		9CFFDC030D398D5757F9E01B /* AmateurRadioSuite */ = {
 			isa = PBXGroup;
 			children = (
-				5B3E799364EC0917B278F027 /* RadioSuite */,
+				CF6245399286623C55BB823C /* Sources */,
+			);
+			name = AmateurRadioSuite;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		CF6245399286623C55BB823C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				200A28FADC1468FD419D5AE1 /* RadioSuite */,
 			);
 			path = Sources;
-			sourceTree = "<group>";
-		};
-		5B3E799364EC0917B278F027 /* RadioSuite */ = {
-			isa = PBXGroup;
-			children = (
-				1E73C5E692441FB7A6FCFE0B /* HostShell.swift */,
-				2050279F71D9EA8A7AA02DD4 /* PluginManager.swift */,
-				79BD8531C4A3CD81719350CC /* PluginManagerView.swift */,
-				DB54D83ADAD0FE06EF2394BA /* PluginRegistry.swift */,
-				5A194538721770EA5A3348E0 /* PluginSupervisor.swift */,
-				D21248B48676433F9598C502 /* RadioSuiteApp.swift */,
-				6AF9EB5F6A04F527F16D8EF3 /* SuiteModel.swift */,
-			);
-			path = RadioSuite;
-			sourceTree = "<group>";
-		};
-		628B01836AD8149BB6AD88A3 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				58D46EF63ABB780CA4F146BF /* BandPassFilterControllerApp */,
-				6581BF78B83F689D34B61A75 /* LP-100A-App */,
-				F2EF2EB9D16C438043AC0712 /* LP-700-App */,
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
-		E319DE34463AC9246A3DF2FF /* AmateurRadioApps */ = {
-			isa = PBXGroup;
-			children = (
-				3FA8E1FCCEAE3F503FACF8E6 /* Sources */,
-			);
-			name = AmateurRadioApps;
-			path = ..;
 			sourceTree = "<group>";
 		};
 		E83D5F1C48F92475A7B4AC12 /* Extension */ = {
@@ -167,7 +172,9 @@
 		E88672795789A77EB897A1B3 /* Host */ = {
 			isa = PBXGroup;
 			children = (
+				3FD5E9D2A73C3BF849A593EA /* ExtensionHosting.swift */,
 				E1F52CD8E56C5AF379740824 /* ExtensionHostView.swift */,
+				9ED629199B8D9B5D48E3D189 /* HostApp.swift */,
 				C2452941CDC87F9E0429677D /* Info.plist */,
 			);
 			path = Host;
@@ -213,9 +220,6 @@
 			packageProductDependencies = (
 				C16CA7B3EA68D83E92F682CF /* RadioPluginKit */,
 				FECEE0C0B776BAFE2440BAE9 /* RadioPluginUI */,
-				8F4F0B9D23DA8445247E8C72 /* LP700App */,
-				3405A44E6F251E6DD2F9B3DD /* LP100AApp */,
-				A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */,
 			);
 			productName = RadioSuiteHost;
 			productReference = E9F10840E3CAD10849B9C0E6 /* RadioSuiteHost.app */;
@@ -249,9 +253,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */,
-				7AD538F4A44492B7A1776974 /* XCLocalSwiftPackageReference "../../BandPassFilterControllerApp" */,
-				86E214B221D4025EDDF1B67F /* XCLocalSwiftPackageReference "../../LP-100A-App" */,
-				2D760CD74FAE45F58799DA20 /* XCLocalSwiftPackageReference "../../LP-700-App" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C37C961B4A71B28F4796713 /* Products */;
@@ -277,14 +278,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCFB56E46A25E1CF2A625096 /* CatalogService.swift in Sources */,
+				6852E523DE3F11872B7291E6 /* CommandPaletteView.swift in Sources */,
 				3042444C9E3BF3940772BE78 /* ExtensionHostView.swift in Sources */,
-				69E3CAF9A869FFA1A4BD83CB /* HostShell.swift in Sources */,
-				37DE3A23495CC608FD9D7EAB /* PluginManager.swift in Sources */,
-				63B06483059F5F76A3A7620B /* PluginManagerView.swift in Sources */,
-				5FE21F53874F886E37AC5A78 /* PluginRegistry.swift in Sources */,
-				B844E6181C4B3F07CBC65391 /* PluginSupervisor.swift in Sources */,
-				574E0F60F9C39812D9A2243B /* RadioSuiteApp.swift in Sources */,
-				215D030F7D2631F3DB9E94B6 /* SuiteModel.swift in Sources */,
+				A3AF07C593761F8B2D01AF14 /* ExtensionHosting.swift in Sources */,
+				509E631E284F8E8916095A59 /* HostApp.swift in Sources */,
+				90A6BF9CEDDB7001466B5B83 /* HostShell.swift in Sources */,
+				03995529A8F54F16657D8C2E /* OnboardingView.swift in Sources */,
+				4485FE351B1D328A57937DEB /* OutOfProcessHosting.swift in Sources */,
+				5118C193BF063441998EA784 /* PackageInstaller.swift in Sources */,
+				192F32DDFAD80904174BE6D6 /* PluginCatalog.swift in Sources */,
+				5E0D34B2632062153D6E9535 /* PluginManager.swift in Sources */,
+				E078CED102D2B53A3432DC30 /* PluginManagerView.swift in Sources */,
+				73239013B7D83AF81C3069BD /* PluginRegistry.swift in Sources */,
+				3D80097240E3BA2AC7284489 /* PluginSupervisor.swift in Sources */,
+				0B5CC7AECC187631F1E96D0F /* SettingsHubView.swift in Sources */,
+				4A7AECB48939343A8951D004 /* SuiteModel.swift in Sources */,
+				3F11B00294D545F4D106FD4C /* SuiteScene.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,21 +528,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		2D760CD74FAE45F58799DA20 /* XCLocalSwiftPackageReference "../../LP-700-App" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../LP-700-App";
-		};
-		7AD538F4A44492B7A1776974 /* XCLocalSwiftPackageReference "../../BandPassFilterControllerApp" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../BandPassFilterControllerApp;
-		};
-		86E214B221D4025EDDF1B67F /* XCLocalSwiftPackageReference "../../LP-100A-App" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../LP-100A-App";
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -545,18 +540,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3405A44E6F251E6DD2F9B3DD /* LP100AApp */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = LP100AApp;
-		};
-		8F4F0B9D23DA8445247E8C72 /* LP700App */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = LP700App;
-		};
-		A8CA64DE9364B2466ADEA7B8 /* BandPassFilterControllerKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BandPassFilterControllerKit;
-		};
 		B3B40E817E484ED5C85CCAA1 /* RadioPluginKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8D4E37227996744009571740 /* XCRemoteSwiftPackageReference "RadioPluginKit" */;

@@ -498,6 +498,15 @@ messages defined in
 | Host → extension | `activate`, `deactivate`, `requestState`, `restoreState(Data)`, `performRecoveryAction(Int)` |
 | Extension → host | `log(String)`, `report(PluginErrorInfo)`, `notify(PluginNotification)`, `setBadge(PluginBadge?)`, `state(Data?)` |
 
+**The hosting seam.** `Sources/RadioSuite` exposes `OutOfProcessHosting` — a provider
+protocol plus a launch hook — that the plain SwiftPM build leaves nil (no ExtensionKit, lean
+`swift build`). The Xcode `HostApp` fills it with `ExtensionHostProvider`, which discovers
+installed extensions (`AppExtensionIdentity`), surfaces each as a `.discovered` `PluginEntry`
+(`ExtensionPluginSource`), marks it runnable, and renders it via `ExtensionHostView`
+(`EXHostViewController`). **Correlation convention:** an out-of-process plugin's `manifest.id`
+equals its extension's **bundle identifier** — the key the provider hosts by. The remaining
+gap to a *running* third-party plugin is Developer-ID signing + extension approval.
+
 **Build requirement:** SwiftPM **cannot** produce `.appex` bundles. An out-of-process
 plugin needs an **Xcode app-extension target** whose `Info.plist` declares the extension
 point:

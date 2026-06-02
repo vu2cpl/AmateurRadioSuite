@@ -101,10 +101,18 @@ final class SuiteModel: ObservableObject {
 
     func plugin(for id: String) -> (any RadioPlugin)? { instance(for: id) }
 
-    /// Cached, lazily built root view for a plugin.
+    /// Cached, lazily built root view for a plugin. In-process plugins render their own
+    /// `makeRootView()`; out-of-process plugins render their `.appex` UI via the
+    /// ExtensionKit host provider (or a placeholder when it can't be hosted yet).
     func view(for id: String) -> AnyView {
         if let v = cache[id] { return v }
-        let v = instance(for: id)?.makeRootView() ?? AnyView(EmptyView())
+        let v: AnyView
+        if let entry = manager.activeEntries.first(where: { $0.id == id }), entry.isOutOfProcess {
+            v = OutOfProcessHosting.view(for: entry.manifest)
+                ?? AnyView(OutOfProcessUnavailableView(name: entry.manifest.name))
+        } else {
+            v = instance(for: id)?.makeRootView() ?? AnyView(EmptyView())
+        }
         cache[id] = v
         return v
     }
@@ -121,10 +129,10 @@ final class SuiteModel: ObservableObject {
     }
 
     private func activate(_ id: String) {
-        guard let p = instance(for: id) else { return }
-        _ = view(for: id)                      // ensure the view (and view model) exists
+        guard !id.isEmpty else { return }
+        _ = view(for: id)                      // ensure the hosted/instance view exists
         host.clearAttention(for: id)           // selecting a tab clears its badge/banner
-        p.activate()
+        instance(for: id)?.activate()          // in-process only; out-of-process is host-managed
         activated.insert(id)
     }
 

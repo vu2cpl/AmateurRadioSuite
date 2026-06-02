@@ -14,23 +14,21 @@ options:
   createIntermediateGroups: true
 
 packages:
+  # The host links only the contract — no plugin apps. Plugins are installed at runtime
+  # and run out-of-process (the embedded DemoSDRExtension is the reference `.appex`).
   RadioPluginKit:
     url: https://github.com/VU3ESV/RadioPluginKit.git
     from: "1.2.0"
-  LP700App:
-    path: ../../LP-700-App
-  LP100AApp:
-    path: ../../LP-100A-App
-  BandPassFilterControllerApp:
-    path: ../../BandPassFilterControllerApp
 
 targets:
   RadioSuiteHost:
     type: application
     platform: macOS
     sources:
-      - path: ../Sources/RadioSuite      # reuse the in-process suite sources verbatim
-      - path: Host                       # + ExtensionKit hosting added here
+      - path: ../Sources/RadioSuite      # reuse the suite sources verbatim
+        excludes:
+          - RadioSuiteApp.swift          # Xcode target's @main is Host/HostApp.swift
+      - path: Host                       # ExtensionKit hosting + the host @main entry
     info:
       path: Host/Info.plist
       properties:
@@ -49,12 +47,6 @@ targets:
         product: RadioPluginKit
       - package: RadioPluginKit
         product: RadioPluginUI
-      - package: LP700App
-        product: LP700App
-      - package: LP100AApp
-        product: LP100AApp
-      - package: BandPassFilterControllerApp
-        product: BandPassFilterControllerKit
       - target: DemoSDRExtension
         embed: true
 
