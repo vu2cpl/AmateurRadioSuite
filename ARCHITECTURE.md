@@ -641,6 +641,11 @@ open RadioSuite.xcodeproj    # or: xcodebuild -scheme RadioSuiteHost … build
 A bundled `.app` is required for the window to activate normally (a raw `swift run` binary
 has no `Info.plist` / activation policy). Requires **macOS 14+**.
 
+`build-app.sh` ad-hoc-signs (fine locally). For a distributable build that passes Gatekeeper
+on any Mac, `./notarize.sh <version>` re-signs with the Developer ID + hardened runtime,
+notarizes, staples, and packages the `.zip`/`.dmg`. Releases are cut locally from those
+artifacts (`gh release create …`) — there is no CI release pipeline.
+
 ---
 
 ## 13. Quick reference — shipping a plugin
