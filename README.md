@@ -41,7 +41,27 @@ open "dist/Amateur Radio Suite.app"
 ```
 
 A bundled `.app` is required for the window to activate normally (a raw `swift run`
-binary has no `Info.plist` / activation policy).
+binary has no `Info.plist` / activation policy). `build-app.sh` **ad-hoc-signs** the bundle —
+fine for local use, but other Macs' Gatekeeper will block it.
+
+### Notarized release
+
+For a build that runs cleanly on any Mac, use `notarize.sh` — it re-signs with the Developer
+ID + hardened runtime, submits to Apple's notary service, staples the ticket, and packages a
+stapled `.zip` and `.dmg`:
+
+```sh
+# one-time: store notary credentials in the keychain
+xcrun notarytool store-credentials ARS-NOTARY \
+  --apple-id <apple-id> --team-id CHVNJ85C9F --password <app-specific-pw>
+
+./notarize.sh 0.1.15          # → dist/AmateurRadioSuite-0.1.15.{zip,dmg}
+```
+
+CI does this automatically: merging a PR into `main` triggers `.github/workflows/release.yml`,
+which patch-bumps the version, notarizes, and publishes a GitHub Release. It needs the repo
+secrets `APPLE_CERT_BASE64`, `APPLE_CERT_PASSWORD`, `APPLE_ID`, `APPLE_APP_PASSWORD`,
+`APPLE_TEAM_ID`.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full developer guide — how the suite and
 plugin architecture work, with diagrams, and exactly what an app must do to be hosted.

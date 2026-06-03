@@ -5,6 +5,16 @@ All notable changes to the Amateur Radio Suite (container app). Format follows
 
 ## [Unreleased]
 
+### Added — release engineering
+- **Notarized releases.** `notarize.sh` builds the universal bundle, re-signs it with the
+  Developer ID + hardened runtime + secure timestamp (replacing `build-app.sh`'s ad-hoc
+  signature), submits to Apple's notary service, staples the ticket, and packages a stapled
+  `.zip` and `.dmg`. Works locally (keychain profile) and in CI (raw `APPLE_*` env).
+- **`release.yml` now notarizes.** The Release workflow imports the Developer ID cert from
+  repo secrets and runs `notarize.sh`, so published `.zip`/`.dmg` pass Gatekeeper with no
+  right-click-Open / `xattr` dance. Requires secrets `APPLE_CERT_BASE64`, `APPLE_CERT_PASSWORD`,
+  `APPLE_ID`, `APPLE_APP_PASSWORD`, `APPLE_TEAM_ID`.
+
 ### Added — Phase 5 (polish)
 - Unified **Settings** hub: a General pane (layout, Safe Mode, onboarding) plus a pane per
   plugin that provides a `settingsView`.
