@@ -58,10 +58,15 @@ xcrun notarytool store-credentials ARS-NOTARY \
 ./notarize.sh 0.1.15          # → dist/AmateurRadioSuite-0.1.15.{zip,dmg}
 ```
 
-CI does this automatically: merging a PR into `main` triggers `.github/workflows/release.yml`,
-which patch-bumps the version, notarizes, and publishes a GitHub Release. It needs the repo
-secrets `APPLE_CERT_BASE64`, `APPLE_CERT_PASSWORD`, `APPLE_ID`, `APPLE_APP_PASSWORD`,
-`APPLE_TEAM_ID`.
+Then publish the release from those artifacts:
+
+```sh
+gh release create v0.1.15 --title "Amateur Radio Suite v0.1.15" --generate-notes \
+  dist/AmateurRadioSuite-0.1.15.zip dist/AmateurRadioSuite-0.1.15.dmg
+```
+
+Releases are cut locally this way — there is no CI release pipeline (notarization needs the
+signing cert + notary credentials, which stay on the build machine, not in GitHub).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full developer guide — how the suite and
 plugin architecture work, with diagrams, and exactly what an app must do to be hosted.

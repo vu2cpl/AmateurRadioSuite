@@ -18,9 +18,9 @@
 #      Notarization is per-Apple-account, not per-app, so ANY profile already on
 #      this Mac works — reuse one with:  NOTARY_PROFILE=DXC-NOTARY ./notarize.sh
 #
-#   2. Raw env (CI). Export APPLE_ID, APPLE_APP_PASSWORD, APPLE_TEAM_ID; the
-#      Developer ID cert must already be in a keychain. Used by
-#      .github/workflows/release.yml (which imports the cert from secrets first).
+#   2. Raw env (e.g. CI). Export APPLE_ID, APPLE_APP_PASSWORD, APPLE_TEAM_ID;
+#      the Developer ID cert must already be in a keychain. (Releases are cut
+#      locally via mode 1 — this fallback is here if a CI runner is ever added.)
 #
 # Usage:
 #   ./notarize.sh [VERSION]        # e.g. 0.1.15
