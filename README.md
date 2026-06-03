@@ -70,3 +70,7 @@ See [PLAN.md](PLAN.md) for the per-app integration plan, and
 third-party developers (browse + install, crash isolation, styling, error/notification handling).
 
 Requires macOS 14+.
+
+## License
+
+[MIT](LICENSE) © 2026 Manoj Ramawarrier (VU2CPL).
