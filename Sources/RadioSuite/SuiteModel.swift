@@ -127,6 +127,14 @@ final class SuiteModel: ObservableObject {
         manager.visibleEntries.map { Entry(id: $0.id, title: $0.manifest.name, systemImage: $0.manifest.systemImage) }
     }
 
+    /// Entries whose panes should stay in the view hierarchy (kept-alive): every plugin
+    /// activated at least once this session, plus the current selection. The host renders
+    /// these in a ZStack so an out-of-process plugin's `EXHostViewController` (and its live
+    /// connection) is not torn down when the user switches to another plugin and back.
+    var liveEntries: [Entry] {
+        entries.filter { activated.contains($0.id) || $0.id == selection }
+    }
+
     private func instance(for id: String) -> (any RadioPlugin)? {
         if let p = instances[id] { return p }
         guard let entry = manager.activeEntries.first(where: { $0.id == id }), let make = entry.make
@@ -175,6 +183,18 @@ final class SuiteModel: ObservableObject {
 
     /// Reconcile after enable/disable changes: tear down plugins that are no longer
     /// active and fix the selection. Call when the manager's active set changes.
+    /// Called by the host's ExtensionKit layer when the set of installed extensions changes
+    /// (a plugin app installed/removed at runtime). Drops cached views for out-of-process
+    /// plugins so a newly-registered one flips from the placeholder to its hosted view —
+    /// then rescans and reconciles. No-op cost in the plain build (the seam is never invoked).
+    func extensionsDidChange() {
+        for entry in manager.entries where entry.isOutOfProcess {
+            cache[entry.id] = nil
+        }
+        manager.reload()
+        reconcile()
+    }
+
     func reconcile() {
         let visible = Set(manager.visibleEntries.map(\.id))
         for id in instances.keys where !visible.contains(id) {

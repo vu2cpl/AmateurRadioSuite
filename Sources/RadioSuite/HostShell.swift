@@ -64,7 +64,7 @@ struct HostShell: View {
             List(selection: sidebarSelection) {
                 ForEach(model.entries) { e in
                     HStack {
-                        Label(e.title, systemImage: e.systemImage)
+                        Label { Text(e.title) } icon: { PluginGlyph(id: e.id, systemImage: e.systemImage) }
                         Spacer()
                         badge(for: e.id)
                     }
@@ -73,8 +73,18 @@ struct HostShell: View {
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 200)
         } detail: {
-            pane(for: model.selection)
-                .frame(minWidth: 600, minHeight: 480)
+            // Keep every activated plugin's pane in the hierarchy (only the selected one
+            // visible) so out-of-process hosts aren't torn down on tab switch — preserving
+            // their live connection/state. Recreating the detail per selection would dismiss
+            // the EXHostViewController and drop the plugin's connection.
+            ZStack {
+                ForEach(model.liveEntries) { e in
+                    pane(for: e.id)
+                        .opacity(e.id == model.selection ? 1 : 0)
+                        .allowsHitTesting(e.id == model.selection)
+                }
+            }
+            .frame(minWidth: 600, minHeight: 480)
         }
     }
 
@@ -82,7 +92,7 @@ struct HostShell: View {
         TabView(selection: tabSelection) {
             ForEach(model.entries) { e in
                 pane(for: e.id)
-                    .tabItem { Label(e.title, systemImage: e.systemImage) }
+                    .tabItem { Label { Text(e.title) } icon: { PluginGlyph(id: e.id, systemImage: e.systemImage) } }
                     .tag(e.id)
             }
         }

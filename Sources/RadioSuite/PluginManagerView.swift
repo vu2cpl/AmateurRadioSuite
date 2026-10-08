@@ -23,7 +23,11 @@ struct PluginManagerView: View {
             }
             .padding(.top, 4)
         }
-        .frame(width: 620, height: 460)
+        // Flexible size so the window can grow; ResizableSheet makes the host sheet
+        // user-resizable (SwiftUI sheets are fixed-size by default) with a sane minimum.
+        .frame(minWidth: 640, idealWidth: 760, maxWidth: .infinity,
+               minHeight: 480, idealHeight: 600, maxHeight: .infinity)
+        .background(ResizableSheet(minSize: CGSize(width: 640, height: 480)))
     }
 
     private var header: some View {
@@ -42,29 +46,40 @@ struct PluginManagerView: View {
     // MARK: - Installed
 
     private var installedTab: some View {
-        List {
-            ForEach(model.manager.entries) { entry in
-                installedRow(entry)
+        VStack(spacing: 0) {
+            List {
+                ForEach(model.manager.entries) { entry in
+                    installedRow(entry)
+                }
+                if model.manager.entries.isEmpty {
+                    Text("No plugins found.").foregroundStyle(.secondary)
+                }
             }
-            if model.manager.entries.isEmpty {
-                Text("No plugins found.").foregroundStyle(.secondary)
-            }
-        }
-        .listStyle(.inset)
-        .safeAreaInset(edge: .bottom) {
+            .listStyle(.inset)
+            // Solid footer bar (not a transparent overlay) so list rows never bleed
+            // through behind the action buttons.
+            Divider()
             HStack {
                 Button { model.manager.reload() } label: { Label("Rescan", systemImage: "arrow.clockwise") }
                 Button("Install from File…") { sideload() }
+                // Out-of-process (ExtensionKit) plugins are disabled by macOS until the user
+                // enables them here. Only shown in the host build that can present the browser.
+                if let openManager = OutOfProcessHosting.showExtensionManager {
+                    Button { openManager() } label: { Label("Enable Extensions…", systemImage: "puzzlepiece.extension") }
+                        .help("Turn on installed out-of-process plugin extensions so the suite can load them.")
+                }
                 Spacer()
                 Button("Open Folder") { NSWorkspace.shared.open(InstalledPluginSource.defaultDirectory()) }
-            }.padding(8)
+            }
+            .padding(8)
+            .background(.bar)
         }
     }
 
     @ViewBuilder private func installedRow(_ entry: PluginEntry) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: entry.manifest.systemImage).font(.title2).frame(width: 28)
-                .foregroundStyle(theme.accent)
+            PluginGlyph(id: entry.manifest.id, systemImage: entry.manifest.systemImage, size: 28)
+                .font(.title2)
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(entry.manifest.name).font(.headline)
@@ -94,50 +109,53 @@ struct PluginManagerView: View {
     @State private var newSource = ""
 
     private var browseTab: some View {
-        List {
-            Section {
-                ForEach(model.catalog.entries) { entry in
-                    browseRow(entry)
-                }
-                if model.catalog.entries.isEmpty {
-                    Text(model.catalog.lastError ?? "No plugins yet. Use “Add Plugin from File…” to browse a .radioplugin, or add a catalog source below.")
-                        .font(.callout).foregroundStyle(.secondary)
-                }
-            }
-            Section("Catalog Sources") {
-                ForEach(model.catalog.sources, id: \.self) { url in
-                    HStack {
-                        Text(url.absoluteString).font(.caption).lineLimit(1).truncationMode(.middle)
-                        Spacer()
-                        Button { model.catalog.removeSource(url); refresh() } label: { Image(systemName: "minus.circle") }
-                            .buttonStyle(.borderless)
+        VStack(spacing: 0) {
+            List {
+                Section {
+                    ForEach(model.catalog.entries) { entry in
+                        browseRow(entry)
+                    }
+                    if model.catalog.entries.isEmpty {
+                        Text(model.catalog.lastError ?? "No plugins yet. Use “Add Plugin from File…” to browse a .radioplugin, or add a catalog source below.")
+                            .font(.callout).foregroundStyle(.secondary)
                     }
                 }
-                HStack {
-                    TextField("https://…/catalog.json", text: $newSource)
-                    Button("Add") {
-                        if let u = URL(string: newSource), !newSource.isEmpty {
-                            model.catalog.addSource(u); newSource = ""; refresh()
+                Section("Catalog Sources") {
+                    ForEach(model.catalog.sources, id: \.self) { url in
+                        HStack {
+                            Text(url.absoluteString).font(.caption).lineLimit(1).truncationMode(.middle)
+                            Spacer()
+                            Button { model.catalog.removeSource(url); refresh() } label: { Image(systemName: "minus.circle") }
+                                .buttonStyle(.borderless)
+                        }
+                    }
+                    HStack {
+                        TextField("https://…/catalog.json", text: $newSource)
+                        Button("Add") {
+                            if let u = URL(string: newSource), !newSource.isEmpty {
+                                model.catalog.addSource(u); newSource = ""; refresh()
+                            }
                         }
                     }
                 }
             }
-        }
-        .listStyle(.inset)
-        .safeAreaInset(edge: .bottom) {
+            .listStyle(.inset)
+            Divider()
             HStack {
                 Button { addFromFile() } label: { Label("Add Plugin from File…", systemImage: "plus") }
                 Button { refresh() } label: { Label("Refresh", systemImage: "arrow.clockwise") }
                 Spacer()
-            }.padding(8)
+            }
+            .padding(8)
+            .background(.bar)
         }
         .task { refresh() }
     }
 
     @ViewBuilder private func browseRow(_ entry: CatalogEntry) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: entry.systemImage ?? "puzzlepiece.extension").font(.title2).frame(width: 28)
-                .foregroundStyle(theme.accent)
+            PluginGlyph(id: entry.id, systemImage: entry.systemImage ?? "puzzlepiece.extension", size: 28)
+                .font(.title2)
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(entry.name).font(.headline)
@@ -244,4 +262,21 @@ struct PluginManagerView: View {
             }
         }
     }
+}
+
+/// Makes the presenting sheet window user-resizable and enforces a minimum content size.
+/// SwiftUI `.sheet` windows are fixed-size by default; inserting `.resizable` into the host
+/// window's style mask restores the drag-to-resize affordance.
+private struct ResizableSheet: NSViewRepresentable {
+    let minSize: CGSize
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { [weak view] in
+            guard let window = view?.window else { return }
+            window.styleMask.insert(.resizable)
+            window.contentMinSize = minSize
+        }
+        return view
+    }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }

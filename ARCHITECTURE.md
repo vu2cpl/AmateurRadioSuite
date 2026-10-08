@@ -25,6 +25,14 @@ The **Amateur Radio Suite** is a single macOS container app that hosts several
 independent amateur-radio control apps as **plugins** in one window. The user
 switches between them with either a **vertical sidebar** or **horizontal tabs**.
 
+| Sidebar layout | Tabs layout |
+|---|---|
+| ![Suite in sidebar layout](docs/images/suite-sidebar.png) | ![Suite in tabs layout](docs/images/suite-tabs.png) |
+
+The chrome (window, sidebar/tab bar, banners) belongs to the host; each plugin owns only
+the content pane and renders its controls inline. The sidebar lists every loaded plugin by
+its own app icon and display name.
+
 Each radio app:
 
 - stays in **its own Git repository** and can still ship as a standalone `.app`, **and**
@@ -514,6 +522,18 @@ installed extensions (`AppExtensionIdentity`), surfaces each as a `.discovered` 
 equals its extension's **bundle identifier** — the key the provider hosts by. The remaining
 gap to a *running* third-party plugin is Developer-ID signing + extension approval.
 
+Until those gates are open (or in the plain SwiftPM build, which links no hosting provider),
+a discovered out-of-process plugin is listed in the sidebar but its pane shows a placeholder
+rather than its UI:
+
+![An out-of-process plugin selected in the sidebar, showing the "runs out-of-process" placeholder](docs/images/out-of-process.png)
+
+In the Xcode host build, macOS surfaces registered extensions through its own enable/disable
+browser (`EXAppExtensionBrowserViewController`), opened from the **Manage Plugins** sheet —
+third-party extensions are disabled by default until the user turns them on here:
+
+![The macOS ExtensionKit browser listing available plugins with enable toggles](docs/images/extension-browser.png)
+
 **Build requirement:** SwiftPM **cannot** produce `.appex` bundles. An out-of-process
 plugin needs an **Xcode app-extension target** whose `Info.plist` declares the extension
 point:
@@ -531,6 +551,47 @@ capabilities, `isolation: "out-of-process"`) **before** launching any code. See
 [docs/EXTENSIONKIT.md](https://github.com/VU3ESV/AmateurRadioSuite/blob/main/docs/EXTENSIONKIT.md)
 and the reference skeleton in
 [docs/extension-template/](https://github.com/VU3ESV/AmateurRadioSuite/tree/main/docs/extension-template).
+
+**Pane keep-alive — live state survives tab/sidebar switches.** An `EXHostViewController` owns
+a live connection to the plugin's separate process. SwiftUI's `NavigationSplitView` rebuilds
+its `detail:` on every selection change, which would dismantle the `NSViewControllerRepresentable`,
+tear down that controller, and **drop the plugin's connection and in-flight state** every time
+you switched tabs and came back. To prevent that, the host keeps every *activated* pane mounted
+and just toggles visibility:
+
+```swift
+// HostShell.swift — detail: of the NavigationSplitView (mirrored in the tab layout)
+ZStack {
+    ForEach(model.liveEntries) { e in
+        pane(for: e.id)
+            .opacity(e.id == model.selection ? 1 : 0)        // only the selection is visible
+            .allowsHitTesting(e.id == model.selection)        // …and interactive
+    }
+}
+```
+
+`liveEntries` (on `SuiteModel`) is the set of panes that must stay in the hierarchy — *every
+plugin activated at least once this session, plus the current selection*:
+
+```swift
+var liveEntries: [Entry] { entries.filter { activated.contains($0.id) || $0.id == selection } }
+```
+
+Because the pane is never removed, the hosted process — and the out-of-process plugin's
+connection — stays alive; switching away and back is instant and the plugin resumes exactly
+where it was (e.g. a connected rig stays connected). The same mechanism preserves an
+**in-process** plugin's SwiftUI `@State`. A pane is only created on first activation (lazy), so
+unopened plugins cost nothing.
+
+This is **runtime (session) persistence** and is distinct from the **durable persistence**
+covered elsewhere — they compose:
+
+| Layer | Mechanism | Survives |
+|---|---|---|
+| Runtime keep-alive | `liveEntries` + ZStack visibility toggling (§8) | tab/sidebar switches within a session — live connection + in-memory UI state |
+| Plugin state | `persistState()` / `restoreState(_:)` — §2.1, §5 | plugin restart / crash recovery |
+| Plugin settings | `host.defaults(for:)` isolated `UserDefaults` — §7.1 | app relaunch |
+| Last selection | persisted selection id restored on launch — §4 | app relaunch (reopens the last-active tab) |
 
 ---
 

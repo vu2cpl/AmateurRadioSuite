@@ -11,6 +11,13 @@ Plugins are **discovered and installed at runtime** (browse a catalog or sideloa
 adding a plugin never requires rebuilding the suite. Forked from and tracking the original
 [Amateur Radio Suite](https://github.com/VU3ESV/AmateurRadioSuite) by Vinod VU3ESV.
 
+![The Amateur Radio Suite hosting the LP-700 plugin in the sidebar layout — each plugin shows its own app icon](docs/images/suite-sidebar.png)
+
+The same window switches between a **vertical sidebar** and **horizontal tabs** from the
+toolbar; each plugin renders its own controls inline (here SPE Expert's connection panel):
+
+![The suite in the horizontal tabs layout, showing the SPE Expert plugin](docs/images/suite-tabs.png)
+
 ## Plugins
 
 The suite ships with **no plugins and an empty catalog** — nothing is baked in. You populate
