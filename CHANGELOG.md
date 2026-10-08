@@ -7,7 +7,49 @@ and its date.
 
 ## [Unreleased]
 
-## [0.1.16] — 2026-10-09
+## [0.1.29] — 2026-10-09
+
+The fork's first release since v0.1.15. It merges Vinod VU3ESV's upstream v0.1.16–v0.1.28
+(listed below; his full notes are on
+[VU3ESV/AmateurRadioSuite releases](https://github.com/VU3ESV/AmateurRadioSuite/releases))
+and adds the fork's update check. The number continues after his v0.1.28 so that no tag here
+means something different from the same tag upstream. (This section was drafted as
+`[0.1.16]` before the merge.)
+
+### Merged from upstream — Vinod VU3ESV's v0.1.16–v0.1.28
+- **v0.1.16** — the host declares the custom extension point `org.vu3esv.radiosuite.plugin`,
+  the actual fix for the empty plugins view
+  ([#19](https://github.com/VU3ESV/AmateurRadioSuite/pull/19)).
+- **v0.1.17** — the host loads third-party plugins: live discovery of installed extensions,
+  and the macOS enable/disable browser opened from **Manage Plugins**
+  ([#20](https://github.com/VU3ESV/AmateurRadioSuite/pull/20)).
+- **v0.1.18 / v0.1.19** — `scripts/package-plugin-app.sh` (embed + sign + notarize + install a
+  plugin app) and the distribution model: install the plugin's app, not just its
+  `.radioplugin` ([#21](https://github.com/VU3ESV/AmateurRadioSuite/pull/21),
+  [#22](https://github.com/VU3ESV/AmateurRadioSuite/pull/22)).
+- **v0.1.20** — releases ship **RadioSuiteHost**, the Xcode hosting build with the DemoSDR
+  sample extension embedded, signed + notarized by `scripts/package-host-signed.sh`; the lean
+  SwiftPM build declares no extension point and can only show placeholders
+  ([#23](https://github.com/VU3ESV/AmateurRadioSuite/pull/23)).
+- **v0.1.21** — CI actions on the Node 24 runtime
+  ([#24](https://github.com/VU3ESV/AmateurRadioSuite/pull/24)).
+- **v0.1.22** — the Plugins manager is resizable and its controls no longer overlap; the app
+  icon is back on the RadioSuiteHost build; the signing identity is picked by SHA-1
+  ([#25](https://github.com/VU3ESV/AmateurRadioSuite/pull/25)).
+- **v0.1.23** — the Suite DMG itself is codesigned, notarized and stapled
+  ([#26](https://github.com/VU3ESV/AmateurRadioSuite/pull/26)).
+- **v0.1.24** — hosted plugin panes stay alive across tab and sidebar switches, so a plugin
+  keeps its connection and state ([#27](https://github.com/VU3ESV/AmateurRadioSuite/pull/27)).
+- **v0.1.25** — each plugin shows its own app icon in the sidebar and the Plugin Manager;
+  codesign retries when Apple's timestamp service is unavailable
+  ([#28](https://github.com/VU3ESV/AmateurRadioSuite/pull/28)).
+- **v0.1.26 / v0.1.27** — screenshots in the README and guides; ARCHITECTURE documents the
+  pane keep-alive ([#29](https://github.com/VU3ESV/AmateurRadioSuite/pull/29),
+  [#30](https://github.com/VU3ESV/AmateurRadioSuite/pull/30)).
+- **v0.1.28** — his CI skips a release for docs-only changes
+  ([#31](https://github.com/VU3ESV/AmateurRadioSuite/pull/31),
+  [#32](https://github.com/VU3ESV/AmateurRadioSuite/pull/32)). Not used here: this fork has
+  no CI release workflow (see below).
 
 ### Added — update check
 - **Check for Updates** against this repo's GitHub releases: about 10 s after launch, at most
@@ -28,6 +70,8 @@ and its date.
 ### Changed — release engineering
 - Releases are cut **locally** (`./notarize.sh <version>` + `gh release create`); the signing
   cert and notary credentials stay on the build machine, so there is no CI release pipeline.
+  The merge keeps upstream's `.github/workflows/release.yml` deleted: on this repo it would
+  publish an ad-hoc build on every PR merge, with no signing secrets.
 - `notarize.sh` zips with `ditto -c -k --norsrc --keepParent`, so the release `.zip` carries no
   AppleDouble `._*` entries (v0.1.15's `--sequesterRsrc` zip had 15; a non-Apple unzipper can
   write them into the bundle and break its seal).
