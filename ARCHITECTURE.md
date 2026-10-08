@@ -253,9 +253,11 @@ graph TD
   renders the sidebar or tabs, draws the per-plugin error **banner** above each pane,
   draws badges, and injects the `RadioTheme` into every plugin's view subtree.
 - **`UpdateChecker`** ([`UpdateChecker.swift`](Sources/RadioSuite/UpdateChecker.swift))
-  checks this repo's GitHub releases for a newer suite build (about 10 s after launch, at
-  most once a day, one anonymous `GET` of the `releases/latest` API; **Check for Updates…**
-  in the app menu, toggle in Settings → General). It only points at the release page; it
+  checks this repo's GitHub releases for a newer suite build (about 10 s after launch, then
+  an hourly timer that re-checks once 24 h have passed since the last *successful* check — a
+  failed check stores nothing and is retried after 1 h; never on its own for a "dev" version;
+  one anonymous `GET` of the `releases/latest` API per check; **Check for Updates…** in the
+  app menu, toggle in Settings → General). It only points at the release page; it
   never downloads or installs anything, and it does not touch plugins.
 
 ### Adding a plugin

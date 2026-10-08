@@ -14,6 +14,12 @@ All notable changes to the Amateur Radio Suite (container app). Format follows
   Updates → Check for updates automatically** (default on) turns the daily check off. Nothing
   is downloaded or installed automatically. `Sources/RadioSuite/UpdateChecker.swift` is
   byte-identical across VU2CPL's Swift apps; both entry points get it through `SuiteScene`.
+- Refined 2026-10-09: only a successful check (HTTP 200 with a `tag_name`) stores the time — a
+  failed one (offline, timeout, any HTTP error including the 403 rate limit, bad JSON) stores
+  nothing and is retried at the next launch, or after 1 h while running; an hourly timer
+  repeats the daily check for as long as the suite runs (never while one of its dialogs is
+  open); and a development build (version containing "dev", e.g. `build-app.sh`'s
+  `0.0.0-dev` fallback) never checks on its own — Check for Updates… still works.
 
 ### Added — release engineering
 - **Notarized releases.** `notarize.sh` builds the universal bundle, re-signs it with the

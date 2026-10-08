@@ -33,13 +33,17 @@ To turn one of these apps into an installable out-of-process plugin, follow
 
 ## Updates
 
-About 10 seconds after launch, at most once a day, the suite asks GitHub whether a newer
-release exists. If one does, it shows the new version and its release notes: **Download**
-opens the release page in your browser (nothing is downloaded or installed automatically),
-**Skip This Version** keeps the automatic check quiet about that release, **Remind Me Later**
-asks again on a later launch. **Check for Updates…** in the app menu (under About) checks
-right away; turn the daily check off in **Settings → General → Updates**. The only request is an
-anonymous `GET https://api.github.com/repos/vu2cpl/AmateurRadioSuite/releases/latest` — no
+About 10 seconds after launch, and then once a day for as long as it keeps running, the suite
+asks GitHub whether a newer release exists. If one does, it shows the new version and its
+release notes: **Download** opens the release page in your browser (nothing is downloaded or
+installed automatically), **Skip This Version** keeps the automatic check quiet about that
+release, **Remind Me Later** asks again at the next daily check. Only a successful check
+counts towards the day: one that fails (offline, timeout, rate limit, any other error) stays
+silent and is tried again about an hour later, or at the next launch. Development builds (a
+version containing "dev", e.g. `build-app.sh`'s `0.0.0-dev` fallback) never check on their
+own. **Check for Updates…** in the app menu (under About) checks right away; turn the daily
+check off in **Settings → General → Updates**. The only request is an anonymous
+`GET https://api.github.com/repos/vu2cpl/AmateurRadioSuite/releases/latest` — no
 account or token, nothing sent beyond the app's name and version in the User-Agent. This
 covers the suite itself; plugins are updated through their `.radioplugin` / catalog.
 (In releases after v0.1.15.)
