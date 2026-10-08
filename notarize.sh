@@ -23,7 +23,7 @@
 #      locally via mode 1 — this fallback is here if a CI runner is ever added.)
 #
 # Usage:
-#   ./notarize.sh [VERSION]        # e.g. 0.1.15
+#   ./notarize.sh [VERSION]        # e.g. 0.1.16
 #     VERSION  optional — falls back to build-app.sh's own `git describe`.
 #
 # Overridable via env: DEV_ID, NOTARY_PROFILE, APP_NAME
@@ -74,7 +74,7 @@ codesign -dvv "$APP" 2>&1 | grep -E "Authority=Developer ID|Timestamp=|flags=.*r
 
 # --- Notarize the .app ------------------------------------------------------
 NOTARY_ZIP="dist/_notary-submit.zip"
-ditto -c -k --keepParent "$APP" "$NOTARY_ZIP"
+ditto -c -k --norsrc --keepParent "$APP" "$NOTARY_ZIP"
 echo "==> Submitting .app to Apple notary service (waits for result)"
 submit "$NOTARY_ZIP"
 xcrun stapler staple "$APP"
@@ -87,7 +87,10 @@ DMG="dist/AmateurRadioSuite-${VER}.dmg"
 rm -f "$ZIP" "$DMG"
 
 # .zip — re-zip the now-stapled app so the ticket travels with it.
-ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+# --norsrc: no AppleDouble `._*` entries in the zip (v0.1.15's --sequesterRsrc
+# zip had 15); a non-Apple unzipper can write those into the bundle and break
+# its seal.
+ditto -c -k --norsrc --keepParent "$APP" "$ZIP"
 
 # .dmg — built from the stapled app, then signed + notarized + stapled itself.
 hdiutil create -volname "$APP_NAME" -srcfolder "$APP" -ov -format UDZO "$DMG"

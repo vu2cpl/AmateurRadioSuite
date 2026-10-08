@@ -1,9 +1,13 @@
 # Changelog
 
 All notable changes to the Amateur Radio Suite (container app). Format follows
-[Keep a Changelog](https://keepachangelog.com/); the suite is pre-1.0 so dates, not versions.
+[Keep a Changelog](https://keepachangelog.com/); the suite is pre-1.0. Sections are headed by the
+release tag on [vu2cpl/AmateurRadioSuite](https://github.com/vu2cpl/AmateurRadioSuite/releases)
+and its date.
 
 ## [Unreleased]
+
+## [0.1.16] — 2026-10-09
 
 ### Added — update check
 - **Check for Updates** against this repo's GitHub releases: about 10 s after launch, at most
@@ -21,13 +25,22 @@ All notable changes to the Amateur Radio Suite (container app). Format follows
   open); and a development build (version containing "dev", e.g. `build-app.sh`'s
   `0.0.0-dev` fallback) never checks on its own — Check for Updates… still works.
 
+### Changed — release engineering
+- Releases are cut **locally** (`./notarize.sh <version>` + `gh release create`); the signing
+  cert and notary credentials stay on the build machine, so there is no CI release pipeline.
+- `notarize.sh` zips with `ditto -c -k --norsrc --keepParent`, so the release `.zip` carries no
+  AppleDouble `._*` entries (v0.1.15's `--sequesterRsrc` zip had 15; a non-Apple unzipper can
+  write them into the bundle and break its seal).
+- MIT `LICENSE` file added to the repository.
+
+## [0.1.15] — 2026-06-03, and everything before it
+
 ### Added — release engineering
 - **Notarized releases.** `notarize.sh` builds the universal bundle, re-signs it with the
   Developer ID + hardened runtime + secure timestamp (replacing `build-app.sh`'s ad-hoc
   signature), submits to Apple's notary service, staples the ticket, and packages a stapled
-  `.zip` and `.dmg` that pass Gatekeeper with no right-click-Open / `xattr` dance.
-- Releases are cut **locally** (`./notarize.sh <version>` + `gh release create`); the signing
-  cert and notary credentials stay on the build machine, so there is no CI release pipeline.
+  `.zip` and `.dmg` that pass Gatekeeper with no right-click-Open / `xattr` dance. v0.1.15 was
+  the first notarized release.
 
 ### Added — Phase 5 (polish)
 - Unified **Settings** hub: a General pane (layout, Safe Mode, onboarding) plus a pane per
