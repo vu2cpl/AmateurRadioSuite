@@ -5,6 +5,16 @@ All notable changes to the Amateur Radio Suite (container app). Format follows
 
 ## [Unreleased]
 
+### Added — update check
+- **Check for Updates** against this repo's GitHub releases: about 10 s after launch, at most
+  once a day, one anonymous `GET` of `api.github.com/repos/vu2cpl/AmateurRadioSuite/releases/latest`;
+  if the tag is newer than `CFBundleShortVersionString`, a dialog with the release notes and
+  **Download** (opens the release page) / **Skip This Version** / **Remind Me Later**.
+  **Check for Updates…** in the app menu (after About) always reports; **Settings → General →
+  Updates → Check for updates automatically** (default on) turns the daily check off. Nothing
+  is downloaded or installed automatically. `Sources/RadioSuite/UpdateChecker.swift` is
+  byte-identical across VU2CPL's Swift apps; both entry points get it through `SuiteScene`.
+
 ### Added — release engineering
 - **Notarized releases.** `notarize.sh` builds the universal bundle, re-signs it with the
   Developer ID + hardened runtime + secure timestamp (replacing `build-app.sh`'s ad-hoc

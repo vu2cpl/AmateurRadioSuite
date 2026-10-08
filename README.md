@@ -8,7 +8,8 @@ loads it through the [`RadioPluginKit`](https://github.com/VU3ESV/RadioPluginKit
 contract. The host links **only the contract** — it does not compile in any plugin.
 Plugins are **discovered and installed at runtime** (browse a catalog or sideload a
 `.radioplugin`) and run **out-of-process** as sandboxed ExtensionKit extensions, so
-adding a plugin never requires rebuilding the suite.
+adding a plugin never requires rebuilding the suite. Forked from and tracking the original
+[Amateur Radio Suite](https://github.com/VU3ESV/AmateurRadioSuite) by Vinod VU3ESV.
 
 ## Plugins
 
@@ -29,6 +30,19 @@ Planned: SPE amplifier (MacExpert), SO2R Box.
 To turn one of these apps into an installable out-of-process plugin, follow
 [docs/CONVERTING-A-PLUGIN.md](docs/CONVERTING-A-PLUGIN.md) — a step-by-step playbook with
 **LP-700** as the worked reference (its `.appex` + `.radioplugin` + catalog entry are live).
+
+## Updates
+
+About 10 seconds after launch, at most once a day, the suite asks GitHub whether a newer
+release exists. If one does, it shows the new version and its release notes: **Download**
+opens the release page in your browser (nothing is downloaded or installed automatically),
+**Skip This Version** keeps the automatic check quiet about that release, **Remind Me Later**
+asks again on a later launch. **Check for Updates…** in the app menu (under About) checks
+right away; turn the daily check off in **Settings → General → Updates**. The only request is an
+anonymous `GET https://api.github.com/repos/vu2cpl/AmateurRadioSuite/releases/latest` — no
+account or token, nothing sent beyond the app's name and version in the User-Agent. This
+covers the suite itself; plugins are updated through their `.radioplugin` / catalog.
+(In releases after v0.1.15.)
 
 ## Build & run
 

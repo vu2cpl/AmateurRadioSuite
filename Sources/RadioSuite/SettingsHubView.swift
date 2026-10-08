@@ -37,6 +37,10 @@ private struct GeneralSettingsPane: View {
                 get: { model.manager.safeMode },
                 set: { model.manager.safeMode = $0 }))
 
+            Section("Updates") {
+                UpdateChecker.AutomaticToggle()
+            }
+
             Section("Maintenance") {
                 Button("Show Welcome Again") { didOnboard = false }
                 Button("Reset Last-Opened Plugin") {
