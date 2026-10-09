@@ -18,6 +18,14 @@ toolbar; each plugin renders its own controls inline (here SPE Expert's connecti
 
 ![The suite in the horizontal tabs layout, showing the SPE Expert plugin](docs/images/suite-tabs.png)
 
+## Download
+
+**Latest release: [v0.1.29](https://github.com/vu2cpl/AmateurRadioSuite/releases/tag/v0.1.29)
+(2026-10-09)** — open `AmateurRadioSuite-0.1.29.dmg` and drag **Amateur Radio Suite.app** to
+/Applications. Developer ID signed, notarized and stapled; universal (Apple Silicon + Intel);
+macOS 14+. It is the plugin-hosting build, and includes Vinod's upstream changes through his
+v0.1.28 — see the [CHANGELOG](CHANGELOG.md).
+
 ## Plugins
 
 The suite ships with **no plugins and an empty catalog** — nothing is baked in. You populate
@@ -53,7 +61,7 @@ check off in **Settings → General → Updates**. The only request is an anonym
 `GET https://api.github.com/repos/vu2cpl/AmateurRadioSuite/releases/latest` — no
 account or token, nothing sent beyond the app's name and version in the User-Agent. This
 covers the suite itself; plugins are updated through their `.radioplugin` / catalog.
-(In releases after v0.1.15.)
+(Since v0.1.29.)
 
 ## Build & run
 

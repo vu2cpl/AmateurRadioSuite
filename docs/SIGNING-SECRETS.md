@@ -1,5 +1,9 @@
 # Release signing secrets (Amateur Radio Suite host)
 
+> **vu2cpl fork:** this page describes Vinod VU3ESV's CI release upstream. This fork has no
+> release workflow and no secrets; releases are cut locally with the same script's local mode
+> (`DEV_ID` + `NOTARY_PROFILE=ARS-NOTARY`) — see the README's "Notarized release" section.
+
 The release workflow builds **RadioSuiteHost** — the out-of-process plugin *host* build of the
 Suite (the lean `build-app.sh` build links only RadioPluginKit and declares no extension point,
 so it can only show placeholders). It signs the host with Developer ID, notarizes it, and ships

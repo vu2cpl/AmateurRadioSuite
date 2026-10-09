@@ -14,7 +14,9 @@ The fork's first release since v0.1.15. It merges Vinod VU3ESV's upstream v0.1.1
 [VU3ESV/AmateurRadioSuite releases](https://github.com/VU3ESV/AmateurRadioSuite/releases))
 and adds the fork's update check. The number continues after his v0.1.28 so that no tag here
 means something different from the same tag upstream. (This section was drafted as
-`[0.1.16]` before the merge.)
+`[0.1.16]` before the merge.) Released 2026-10-09 as
+[v0.1.29](https://github.com/vu2cpl/AmateurRadioSuite/releases/tag/v0.1.29):
+`AmateurRadioSuite-0.1.29.dmg` / `.zip` (notarized + stapled, universal) and `SHA256SUMS`.
 
 ### Merged from upstream — Vinod VU3ESV's v0.1.16–v0.1.28
 - **v0.1.16** — the host declares the custom extension point `org.vu3esv.radiosuite.plugin`,
