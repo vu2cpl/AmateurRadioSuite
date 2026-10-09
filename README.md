@@ -63,6 +63,12 @@ account or token, nothing sent beyond the app's name and version in the User-Age
 covers the suite itself; plugins are updated through their `.radioplugin` / catalog.
 (Since v0.1.29.)
 
+*Unreleased — ships with the next release:* when the update window appears on its own (the
+automatic check) it no longer takes the keyboard or brings the suite forward — whatever you are
+typing in keeps the keyboard — and none of its buttons is the default, so Return can never open
+the browser: **Download** needs a click, Esc is **Remind Me Later**. **Check for Updates…**
+still brings the window forward, also with no default button.
+
 ## Build & run
 
 The suite builds standalone — its only dependency is `RadioPluginKit` (resolved from

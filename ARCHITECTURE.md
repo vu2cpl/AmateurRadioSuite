@@ -266,7 +266,9 @@ graph TD
   failed check stores nothing and is retried after 1 h; never on its own for a "dev" version;
   one anonymous `GET` of the `releases/latest` API per check; **Check for Updates…** in the
   app menu, toggle in Settings → General). It only points at the release page; it
-  never downloads or installs anything, and it does not touch plugins.
+  never downloads or installs anything, and it does not touch plugins. Its update window is a
+  non-modal panel with no default button; from an automatic check it is shown without
+  activating the app or becoming key (unreleased — ships with the next release).
 
 ### Adding a plugin
 

@@ -7,6 +7,17 @@ and its date.
 
 ## [Unreleased]
 
+### Changed
+- **Update dialog: no focus, no default button for the automatic check** (Manoj, 2026-10-09;
+  ships with the next release). The window an automatic check puts up (at launch or from the
+  hourly timer) appears in front without activating the suite or taking the keyboard, so typing
+  in any app — or in a plugin pane — carries on, and none of its buttons is the default: Return
+  never opens the browser, **Download** needs a click, Esc / the close box is **Remind Me
+  Later**. **Check for Updates…** still brings it forward and gives it the keyboard, also with no
+  default button. It was an app-modal `NSAlert` that became the key window mid-typing, where
+  Return pressed Download; it is now a non-modal panel (shared `UpdateChecker.swift`, still
+  byte-identical across VU2CPL's Swift apps).
+
 ## [0.1.29] — 2026-10-09
 
 The fork's first release since v0.1.15. It merges Vinod VU3ESV's upstream v0.1.16–v0.1.28
