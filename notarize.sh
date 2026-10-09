@@ -3,6 +3,11 @@
 # notarize.sh — produce a NOTARIZED, stapled "Amateur Radio Suite.app" plus
 # distributable .zip and .dmg, ready to attach to a GitHub Release.
 #
+# NOTE: this is the LEAN SwiftPM build (how v0.1.15 shipped). It declares no
+# extension point, so out-of-process plugins only show placeholders. Releases
+# since v0.1.29 ship the hosting build instead — use
+#   VERSION=<v> DEV_ID=<sha1> NOTARY_PROFILE=ARS-NOTARY ./scripts/package-host-signed.sh
+#
 # build-app.sh only ad-hoc-signs (fine for local dev, but Gatekeeper blocks it
 # on other Macs). This script builds the same universal bundle, then RE-SIGNS it
 # with Manoj's Developer ID + hardened runtime + secure timestamp, submits it to

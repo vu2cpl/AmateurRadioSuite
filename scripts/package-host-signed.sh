@@ -12,6 +12,13 @@
 #
 #   VERSION=0.2.0 ./scripts/package-host-signed.sh
 #
+# Local release (vu2cpl fork — no CI release workflow; cert + notary profile on this Mac):
+#
+#   VERSION=0.1.29 DEV_ID=<sha1-of-Developer-ID> NOTARY_PROFILE=ARS-NOTARY \
+#     ./scripts/package-host-signed.sh
+#
+# Builds universal (arm64 + x86_64) for both the app and the embedded extension.
+#
 # Env — signing (from CI secrets):
 #   MACOS_CERT_P12_BASE64   base64 of the Suite's Developer ID Application .p12 (cert + key)
 #   MACOS_CERT_PASSWORD     the .p12 export password
@@ -20,6 +27,9 @@
 #   NOTARY_APPLE_ID         Apple ID email
 #   NOTARY_TEAM_ID          team id (Y6FT52BKDA)
 #   NOTARY_PASSWORD         app-specific password for that Apple ID
+# Env — local release (no CI secrets; the cert is already in the login keychain):
+#   DEV_ID                  Developer ID Application identity (SHA-1 or full name) to sign with
+#   NOTARY_PROFILE          notarytool keychain profile to notarize with
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -35,7 +45,7 @@ echo "==> Building RadioSuiteHost (unsigned) v$VERSION"
 ( cd Xcode && xcodegen generate >/dev/null )
 DERIVED="$(mktemp -d)"
 xcodebuild -project Xcode/RadioSuite.xcodeproj -scheme RadioSuiteHost -configuration Release \
-  -destination 'platform=macOS' -derivedDataPath "$DERIVED" CODE_SIGNING_ALLOWED=NO build >/dev/null
+  -destination 'generic/platform=macOS' -derivedDataPath "$DERIVED" CODE_SIGNING_ALLOWED=NO build >/dev/null
 BUILT="$DERIVED/Build/Products/Release/RadioSuiteHost.app"
 [ -d "$BUILT/Contents/Extensions/$APPEX_NAME" ] || { echo "ERROR: embedded $APPEX_NAME not found" >&2; exit 1; }
 
@@ -70,6 +80,11 @@ if [ -n "${MACOS_CERT_P12_BASE64:-}" ]; then
   IDENTITY="$(security find-identity -v -p codesigning "$KC" | sed -n 's/.*"\(Developer ID Application: .*\)"/\1/p' | head -1)"
 fi
 
+# Local release: sign with an identity already in the keychain (no .p12 import).
+if [ -z "$IDENTITY" ] && [ -n "${DEV_ID:-}" ]; then
+  IDENTITY="$DEV_ID"
+fi
+
 # --- sign inside-out (extension with sandbox entitlements first, then the app) ----------
 # codesign with a few retries — Apple's secure-timestamp service is intermittently unavailable
 # ("The timestamp service is not available."), which would otherwise fail the whole release.
@@ -95,11 +110,15 @@ codesign --verify --strict --verbose=2 "$APP"
 
 # --- helper: submit to the notary service ----------------------------------------------
 notarize() {  # $1 = path to a .zip or .dmg to submit
-  xcrun notarytool submit "$1" \
-    --apple-id "$NOTARY_APPLE_ID" --team-id "${NOTARY_TEAM_ID:-}" --password "$NOTARY_PASSWORD" --wait
+  if [ -n "${NOTARY_PROFILE:-}" ]; then
+    xcrun notarytool submit "$1" --keychain-profile "$NOTARY_PROFILE" --wait
+  else
+    xcrun notarytool submit "$1" \
+      --apple-id "$NOTARY_APPLE_ID" --team-id "${NOTARY_TEAM_ID:-}" --password "$NOTARY_PASSWORD" --wait
+  fi
 }
 HAVE_NOTARY=0
-if [ -n "$IDENTITY" ] && [ -n "${NOTARY_APPLE_ID:-}" ] && [ -n "${NOTARY_PASSWORD:-}" ]; then
+if [ -n "$IDENTITY" ] && { [ -n "${NOTARY_PROFILE:-}" ] || { [ -n "${NOTARY_APPLE_ID:-}" ] && [ -n "${NOTARY_PASSWORD:-}" ]; }; }; then
   HAVE_NOTARY=1
 fi
 
@@ -108,7 +127,7 @@ fi
 if [ "$HAVE_NOTARY" = 1 ]; then
   echo "==> Notarizing the app + stapling (a few minutes)…"
   NZIP="$(mktemp -d)/RadioSuiteHost.zip"
-  ditto -c -k --keepParent "$APP" "$NZIP"
+  ditto -c -k --norsrc --keepParent "$APP" "$NZIP"
   notarize "$NZIP"
   xcrun stapler staple "$APP"
 fi
@@ -118,7 +137,7 @@ ZIP="AmateurRadioSuite-${VERSION}.zip"
 DMG="AmateurRadioSuite-${VERSION}.dmg"
 echo "==> Packaging $ZIP and $DMG"
 rm -f "$ZIP" "$DMG"
-ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+ditto -c -k --norsrc --keepParent "$APP" "$ZIP"
 hdiutil create -volname "Amateur Radio Suite" -srcfolder "$APP" -ov -format UDZO "$DMG"
 
 # Codesign the DMG container too (so `spctl -t open` accepts it and it mounts without a

@@ -68,13 +68,21 @@ means something different from the same tag upstream. (This section was drafted 
   `0.0.0-dev` fallback) never checks on its own — Check for Updates… still works.
 
 ### Changed — release engineering
-- Releases are cut **locally** (`./notarize.sh <version>` + `gh release create`); the signing
-  cert and notary credentials stay on the build machine, so there is no CI release pipeline.
-  The merge keeps upstream's `.github/workflows/release.yml` deleted: on this repo it would
-  publish an ad-hoc build on every PR merge, with no signing secrets.
-- `notarize.sh` zips with `ditto -c -k --norsrc --keepParent`, so the release `.zip` carries no
-  AppleDouble `._*` entries (v0.1.15's `--sequesterRsrc` zip had 15; a non-Apple unzipper can
-  write them into the bundle and break its seal).
+- **The release is now the hosting build**, RadioSuiteHost, as upstream since v0.1.20 — v0.1.15
+  shipped the lean SwiftPM build, which can only show placeholders for out-of-process plugins.
+  Universal (arm64 + x86_64) for the app and the embedded DemoSDR extension, like v0.1.15.
+- Releases are cut **locally** (`scripts/package-host-signed.sh` + `gh release create`); the
+  signing cert and notary credentials stay on the build machine, so there is no CI release
+  pipeline. The merge keeps upstream's `.github/workflows/release.yml` deleted: on this repo it
+  would publish an ad-hoc build on every PR merge, with no signing secrets.
+- `scripts/package-host-signed.sh` gains a local mode: `DEV_ID` signs with a Developer ID
+  already in the keychain, `NOTARY_PROFILE` notarizes with a `notarytool` keychain profile
+  (`ARS-NOTARY`). Without them it behaves as before (CI `.p12` + Apple ID secrets, or ad-hoc).
+  It now builds for `generic/platform=macOS` (universal; `platform=macOS` built arm64 only on
+  Xcode 27), and zips with `--norsrc`.
+- Release zips use `ditto -c -k --norsrc --keepParent`, so they carry no AppleDouble `._*`
+  entries (v0.1.15's `--sequesterRsrc` zip had 15; a non-Apple unzipper can write them into
+  the bundle and break its seal). `notarize.sh` (the lean build) does the same.
 - MIT `LICENSE` file added to the repository.
 
 ## [0.1.15] — 2026-06-03, and everything before it

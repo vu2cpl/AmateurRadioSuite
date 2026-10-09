@@ -71,27 +71,36 @@ fine for local use, but other Macs' Gatekeeper will block it.
 
 ### Notarized release
 
-For a build that runs cleanly on any Mac, use `notarize.sh` — it re-signs with the Developer
-ID + hardened runtime, submits to Apple's notary service, staples the ticket, and packages a
-stapled `.zip` and `.dmg`:
+`build-app.sh` makes the lean SwiftPM build: it declares no extension point, so every
+out-of-process plugin shows a placeholder instead of its UI. **Releases ship RadioSuiteHost**,
+the Xcode hosting build with the DemoSDR sample extension embedded (since v0.1.29 here, as
+upstream since v0.1.20). `scripts/package-host-signed.sh` builds it universal (arm64 + x86_64),
+stamps the version, signs the extension and then the app with the Developer ID + hardened
+runtime, notarizes and staples the app, and packages a `.zip` and a `.dmg` (the DMG is itself
+signed, notarized and stapled):
 
 ```sh
 # one-time: store notary credentials in the keychain
 xcrun notarytool store-credentials ARS-NOTARY \
   --apple-id <apple-id> --team-id CHVNJ85C9F --password <app-specific-pw>
 
-./notarize.sh 0.1.15          # → dist/AmateurRadioSuite-0.1.15.{zip,dmg}
+# DEV_ID = the Developer ID Application identity's SHA-1 (security find-identity -v -p codesigning)
+VERSION=0.1.29 DEV_ID=<sha1> NOTARY_PROFILE=ARS-NOTARY ./scripts/package-host-signed.sh
+#   → AmateurRadioSuite-0.1.29.{zip,dmg} at the repo root
 ```
 
 Then publish the release from those artifacts:
 
 ```sh
-gh release create v0.1.15 --title "Amateur Radio Suite v0.1.15" --generate-notes \
-  dist/AmateurRadioSuite-0.1.15.zip dist/AmateurRadioSuite-0.1.15.dmg
+gh release create v0.1.29 --title "Amateur Radio Suite v0.1.29" --notes-file <notes.md> \
+  AmateurRadioSuite-0.1.29.zip AmateurRadioSuite-0.1.29.dmg
 ```
 
 Releases are cut locally this way — there is no CI release pipeline (notarization needs the
-signing cert + notary credentials, which stay on the build machine, not in GitHub).
+signing cert + notary credentials, which stay on the build machine, not in GitHub). The same
+script still serves Vinod's CI unchanged: with his `MACOS_CERT_*` / `NOTARY_*` secrets it
+imports the `.p12` into a throwaway keychain as before. `notarize.sh` (the lean build, how
+v0.1.15 shipped) is kept for reference.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full developer guide — how the suite and
 plugin architecture work, with diagrams, and exactly what an app must do to be hosted.
